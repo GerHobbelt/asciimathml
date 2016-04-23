@@ -187,12 +187,13 @@ function createMmlNode(t,frag) {
 }
 
 function newcommand(oldstr,newstr) {
-  AMsymbols = AMsymbols.concat([{input:oldstr, tag:"mo", output:newstr, 
-                                 tex:null, ttype:DEFINITION}]);
-  // ####  Added from Version 2.0.1 #### //
-  AMsymbols.sort(compareNames);
-  for (i=0; i<AMsymbols.length; i++) AMnames[i] = AMsymbols[i].input;
-  // ####  End of Addition #### //
+  AMsymbols.push({input:oldstr, tag:"mo", output:newstr, tex:null, ttype:DEFINITION});
+  refreshSymbols();
+}
+
+function newsymbol(symbolobj) {
+  AMsymbols.push(symbolobj);
+  refreshSymbols();
 }
 
 // character lists for Mozilla/Netscape fonts
@@ -262,6 +263,9 @@ var AMsymbols = [
 {input:"\\\\", tag:"mo", output:"\\",   tex:"backslash", ttype:CONST},
 {input:"setminus", tag:"mo", output:"\\", tex:null, ttype:CONST},
 {input:"xx", tag:"mo", output:"\u00D7", tex:"times", ttype:CONST},
+{input:"|><", tag:"mo", output:"\u22C9", tex:"ltimes", ttype:CONST},
+{input:"><|", tag:"mo", output:"\u22CA", tex:"rtimes", ttype:CONST},
+{input:"|><|", tag:"mo", output:"\u22C8", tex:"bowtie", ttype:CONST},
 {input:"-:", tag:"mo", output:"\u00F7", tex:"div", ttype:CONST},
 {input:"divide",   tag:"mo", output:"-:", tex:null, ttype:DEFINITION},
 {input:"@",  tag:"mo", output:"\u2218", tex:"circ", ttype:CONST},
@@ -354,6 +358,7 @@ var AMsymbols = [
 {input:"'",   tag:"mo", output:"\u2032",  tex:"prime", ttype:CONST},
 {input:"tilde", tag:"mover", output:"~", tex:null, ttype:UNARY, acc:true},
 {input:"\\ ",  tag:"mo", output:"\u00A0", tex:null, ttype:CONST},
+{input:"frown",  tag:"mo", output:"\u2322", tex:null, ttype:CONST},
 {input:"quad", tag:"mo", output:"\u00A0\u00A0", tex:null, ttype:CONST},
 {input:"qquad", tag:"mo", output:"\u00A0\u00A0\u00A0\u00A0", tex:null, ttype:CONST},
 {input:"cdots", tag:"mo", output:"\u22EF", tex:null, ttype:CONST},
@@ -467,14 +472,15 @@ function compareNames(s1,s2) {
 var AMnames = []; //list of input symbols
 
 function initSymbols() {
-  var texsymbols = [], i;
-  for (i=0; i<AMsymbols.length; i++)
+  var i;
+  var symlen = AMsymbols.length;
+  for (i=0; i<symlen; i++) {
     if (AMsymbols[i].tex) {
-      texsymbols[texsymbols.length] = {input:AMsymbols[i].tex, 
+      AMsymbols.push({input:AMsymbols[i].tex, 
         tag:AMsymbols[i].tag, output:AMsymbols[i].output, ttype:AMsymbols[i].ttype,
-        acc:(AMsymbols[i].acc||false)};
+        acc:(AMsymbols[i].acc||false)});
     }
-  AMsymbols = AMsymbols.concat(texsymbols);
+  }
   refreshSymbols();
 }
 
@@ -485,8 +491,7 @@ function refreshSymbols(){
 }
 
 function define(oldstr,newstr) {
-  AMsymbols = AMsymbols.concat([{input:oldstr, tag:"mo", output:newstr, 
-                                 tex:null, ttype:DEFINITION}]);
+  AMsymbols.push({input:oldstr, tag:"mo", output:newstr, tex:null, ttype:DEFINITION});
   refreshSymbols(); // this may be a problem if many symbols are defined!
 }
 
@@ -864,7 +869,9 @@ function AMparseExpr(str,rightbracket) {
   if (symbol.ttype == RIGHTBRACKET || symbol.ttype == LEFTRIGHT) {
 //    if (AMnestingDepth > 0) AMnestingDepth--;
     var len = newFrag.childNodes.length;
-    if (len>0 && newFrag.childNodes[len-1].nodeName == "mrow" ) { //matrix
+    if (len>0 && newFrag.childNodes[len-1].nodeName == "mrow" 
+    	    && newFrag.childNodes[len-1].lastChild
+    	    && newFrag.childNodes[len-1].lastChild.firstChild ) { //matrix
     	    //removed to allow row vectors: //&& len>1 && 
     	    //newFrag.childNodes[len-2].nodeName == "mo" &&
     	    //newFrag.childNodes[len-2].firstChild.nodeValue == ","
@@ -1112,6 +1119,7 @@ else if(typeof window.attachEvent != 'undefined'){
 
 //expose some functions to outside
 asciimath.newcommand = newcommand;
+asciimath.newsymbol = newsymbol;
 asciimath.AMprocesssNode = AMprocessNode;
 asciimath.parseMath = parseMath;
 asciimath.translate = translate;

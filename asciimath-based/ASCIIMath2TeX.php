@@ -15,16 +15,23 @@ This is a PHP port of a Javascript modification of ASCIIMathML
 Modified with TeX conversion for IMG rendering 
 Sept 7, 2006 (c) David Lippman http://www.pierce.ctc.edu/dlippman
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-This program is distributed in the hope that it will be useful, 
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License (at http://www.gnu.org/copyleft/gpl.html) 
-for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 class AMtoTeX 
 {
@@ -84,6 +91,9 @@ array( 'input'=>'//', 'tex'=>'/', 'val'=>true, 'notexcopy'=>TRUE),
 array( 'input'=>'\\\\', 'tex'=>'backslash'),
 array( 'input'=>'setminus', 'output'=>'\\\\', 'definition'=>TRUE),
 array( 'input'=>'xx', 'tex'=>'times'),
+array( 'input'=>'|><', 'tex'=>'ltimes'),
+array( 'input'=>'><|', 'tex'=>'rtimes'),
+array( 'input'=>'|><|', 'tex'=>'bowtie'),
 array( 'input'=>'-:', 'tex'=>'div'),
 array( 'input'=>'divide', 'output'=>'-:', 'definition'=>TRUE),
 array( 'input'=>'&deg;', 'output'=>'^@', 'definition'=>TRUE),
@@ -161,6 +171,7 @@ array( 'input'=>'/_', 'tex'=>'angle'),
 array( 'input'=>'/_\\', 'tex'=>'triangle'),
 array( 'input'=>'\\ ', 'output'=>'\\ ', 'val'=>'true'),
 array( 'input'=>'%', 'tex'=>'%', 'notexcopy'=>TRUE),
+array( 'input'=>'frown'),
 array( 'input'=>'quad'),
 array( 'input'=>'qquad'),
 array( 'input'=>'cdots'),
@@ -280,13 +291,13 @@ array( 'input'=>'overset', 'binary'=>TRUE),
 array( 'input'=>'underset', 'binary'=>TRUE),
 
 // Grouping brackets
-array( 'input'=>'(', 'leftbracket'=>TRUE),
-array( 'input'=>')', 'rightbracket'=>TRUE),
-array( 'input'=>'[', 'leftbracket'=>TRUE),
-array( 'input'=>']', 'rightbracket'=>TRUE),
+array( 'input'=>'(', 'leftbracket'=>TRUE, 'val'=>TRUE),
+array( 'input'=>')', 'rightbracket'=>TRUE, 'val'=>TRUE),
+array( 'input'=>'[', 'leftbracket'=>TRUE, 'val'=>TRUE),
+array( 'input'=>']', 'rightbracket'=>TRUE, 'val'=>TRUE),
 array( 'input'=>'{', 'tex'=>'lbrace', 'leftbracket'=>TRUE),
 array( 'input'=>'}', 'tex'=>'rbrace', 'rightbracket'=>TRUE),
-array( 'input'=>'|', 'leftright'=>TRUE),
+array( 'input'=>'|', 'leftright'=>TRUE, 'val'=>TRUE),
 array( 'input'=>'(:', 'tex'=>'langle', 'leftbracket'=>TRUE),
 array( 'input'=>':)', 'tex'=>'rangle', 'rightbracket'=>TRUE),
 array( 'input'=>'{:', 'leftbracket'=>TRUE, 'invisible'=>TRUE),
@@ -317,7 +328,6 @@ function AMinitSymbols() {
 				if ($k!='tex') { $tsymb[$k]=$v;}
 			}
 			$tsymb['input']= $this->AMsymbols[$i]['tex'];
-			$tsymb['istex'] = true;
 			array_push($this->AMsymbols, $tsymb);
 		}
 	}
@@ -486,17 +496,6 @@ function AMTgetTeXsymbol($symb) {
 		return ($pre.$symb['input']);
 	}
 }
-function AMTgetTeXbracket($symb) {
-	if (isset($symb['tex'])) {
-		return ('\\'.$symb['tex']);
-	} else {
-		if (isset($symb['istex']) && $symb['istex']) {
-			return '\\'.$symb['input'];
-		} else {
-			return $symb['input'];
-		}
-	}
-}
 
 function AMTparseSexpr($str) { 
 	
@@ -536,13 +535,13 @@ function AMTparseSexpr($str) {
 			if (isset($symbol['invisible'])) {
 				$node = '{' . $result[0] . '}';
 			} else {
-				$node = '{' . $this->AMTgetTeXbracket($symbol) . $result[0] . '}';
+				$node = '{' . $this->AMTgetTeXsymbol($symbol) . $result[0] . '}';
 			}
 		} else {
 			if (isset($symbol['invisible'])) {
 				$node = '{\\left.' . $result[0] . '}';
 			} else {
-				$node = '{\\left' . $this->AMTgetTeXbracket($symbol) . $result[0] . '}';
+				$node = '{\\left' . $this->AMTgetTeXsymbol($symbol) . $result[0] . '}';
 			}
 		}
 		return array($node, $result[1]);
@@ -756,11 +755,18 @@ function AMTparseExpr($str,$rightbracket) {
 						if ($newFrag{$i}==',' && $mxanynestingd==1) {
 							$subpos[$lastsubposstart][] = $i;
 						}
+						if ($mxanynestingd<0) {  //happens at the end of the row
+							if ($lastsubposstart == $i+1) { //if at end of row, skip to next row
+								$i++;
+							} else { //misformed something - abandon treating as a matrix
+								$matrix = false;
+							}
+						}
 						
 					} 
 					array_push($pos,$len);
 					$lastmxsubcnt = -1;
-					if ($mxnestingd==0 && count($pos)>0) {
+					if ($mxnestingd==0 && count($pos)>0 && $matrix) {
 						for ($i=0; $i<count($pos)-1;$i++) {
 							if ($i>0) { $mxout .= '\\\\';}
 							if ($i==0) {
@@ -802,7 +808,7 @@ function AMTparseExpr($str,$rightbracket) {
 		}
 		$str = $this->AMremoveCharsAndBlanks($str,strlen($symbol['input']));
 		if (!isset($symbol['invisible'])) {
-			$node = '\\right'.$this->AMTgetTeXbracket($symbol);
+			$node = '\\right'.$this->AMTgetTeXsymbol($symbol);
 			$newFrag .= $node;
 			$addedright = true;
 		} else {

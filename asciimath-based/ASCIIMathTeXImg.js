@@ -5,15 +5,23 @@ Modified with TeX conversion for IMG rendering Sept 6, 2006 (c) David Lippman ht
   Updated to match ver 2.2 Mar 3, 2014
   Latest at https://github.com/mathjax/asciimathml
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation; either version 2.1 of the 
-License, or (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-This program is distributed in the hope that it will be useful, but WITHOUT 
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License 
-(at http://www.gnu.org/licences/lgpl.html) for more details.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 */
 
 //var AMTcgiloc = '';			//set to the URL of your LaTex renderer
@@ -97,6 +105,9 @@ var AMsymbols = [
 {input:"\\\\", tag:"mo", output:"\\",   tex:"backslash", ttype:CONST},
 {input:"setminus", tag:"mo", output:"\\", tex:null, ttype:CONST},
 {input:"xx", tag:"mo", output:"\u00D7", tex:"times", ttype:CONST},
+{input:"|><", tag:"mo", output:"\u22C9", tex:"ltimes", ttype:CONST},
+{input:"><|", tag:"mo", output:"\u22CA", tex:"rtimes", ttype:CONST},
+{input:"|><|", tag:"mo", output:"\u22C8", tex:"bowtie", ttype:CONST},
 {input:"-:", tag:"mo", output:"\u00F7", tex:"div", ttype:CONST},
 {input:"divide",   tag:"mo", output:"-:", tex:null, ttype:DEFINITION},
 {input:"@",  tag:"mo", output:"\u2218", tex:"circ", ttype:CONST},
@@ -159,13 +170,13 @@ var AMsymbols = [
 {input:"|==",  tag:"mo", output:"\u22A8", tex:"models", ttype:CONST}, //mimetex doesn't support
 
 //grouping brackets
-{input:"(", tag:"mo", output:"(", tex:null, ttype:LEFTBRACKET},
-{input:")", tag:"mo", output:")", tex:null, ttype:RIGHTBRACKET},
-{input:"[", tag:"mo", output:"[", tex:null, ttype:LEFTBRACKET},
-{input:"]", tag:"mo", output:"]", tex:null, ttype:RIGHTBRACKET},
+{input:"(", tag:"mo", output:"(", tex:null, ttype:LEFTBRACKET, val:true},
+{input:")", tag:"mo", output:")", tex:null, ttype:RIGHTBRACKET, val:true},
+{input:"[", tag:"mo", output:"[", tex:null, ttype:LEFTBRACKET, val:true},
+{input:"]", tag:"mo", output:"]", tex:null, ttype:RIGHTBRACKET, val:true},
 {input:"{", tag:"mo", output:"{", tex:"lbrace", ttype:LEFTBRACKET},
 {input:"}", tag:"mo", output:"}", tex:"rbrace", ttype:RIGHTBRACKET},
-{input:"|", tag:"mo", output:"|", tex:null, ttype:LEFTRIGHT},
+{input:"|", tag:"mo", output:"|", tex:null, ttype:LEFTRIGHT, val:true},
 //{input:"||", tag:"mo", output:"||", tex:null, ttype:LEFTRIGHT},
 {input:"(:", tag:"mo", output:"\u2329", tex:"langle", ttype:LEFTBRACKET},
 {input:":)", tag:"mo", output:"\u232A", tex:"rangle", ttype:RIGHTBRACKET},
@@ -192,6 +203,7 @@ var AMsymbols = [
 {input:"/_",  tag:"mo", output:"\u2220",  tex:"angle", ttype:CONST},
 {input:"/_\\",  tag:"mo", output:"\u25B3",  tex:"triangle", ttype:CONST},
 {input:"\\ ",  tag:"mo", output:"\u00A0", tex:null, ttype:CONST, val:true},
+{input:"frown",  tag:"mo", output:"\u2322", tex:null, ttype:CONST},
 {input:"%",  tag:"mo", output:"%", tex:"%", ttype:CONST, notexcopy:true},
 {input:"quad", tag:"mo", output:"\u00A0\u00A0", tex:null, ttype:CONST},
 {input:"qquad", tag:"mo", output:"\u00A0\u00A0\u00A0\u00A0", tex:null, ttype:CONST},
@@ -322,21 +334,32 @@ function compareNames(s1,s2) {
 var AMnames = []; //list of input symbols
 
 function AMinitSymbols() {
-  var texsymbols = [], i;
-  for (i=0; i<AMsymbols.length; i++)
+  var i;
+  var symlen = AMsymbols.length;
+  for (i=0; i<symlen; i++) {
     if (AMsymbols[i].tex && !(typeof AMsymbols[i].notexcopy == "boolean" && AMsymbols[i].notexcopy)) {
-       texsymbols[texsymbols.length] = {input:AMsymbols[i].tex, 
+       AMsymbols.push({input:AMsymbols[i].tex, 
         tag:AMsymbols[i].tag, output:AMsymbols[i].output, ttype:AMsymbols[i].ttype,
-        acc:(AMsymbols[i].acc||false)};
+        acc:(AMsymbols[i].acc||false)});
     }
-  AMsymbols = AMsymbols.concat(texsymbols);
+  }
+  refreshSymbols();
+}
+
+function refreshSymbols(){
+  var i;
   AMsymbols.sort(compareNames);
   for (i=0; i<AMsymbols.length; i++) AMnames[i] = AMsymbols[i].input;
 }
 
 function newcommand(oldstr,newstr) {
-  AMsymbols = AMsymbols.concat([{input:oldstr, tag:"mo", output:newstr, 
-                                 tex:null, ttype:DEFINITION}]);
+  AMsymbols.push({input:oldstr, tag:"mo", output:newstr, tex:null, ttype:DEFINITION});
+  refreshSymbols();
+}
+
+function newsymbol(symbolobj) {
+  AMsymbols.push(symbolobj);
+  refreshSymbols();
 }
 
 function AMremoveCharsAndBlanks(str,n) {
@@ -493,13 +516,6 @@ function AMTgetTeXsymbol(symb) {
 		return (pre+symb.tex);
 	}
 }
-function AMTgetTeXbracket(symb) {
-	if (symb.tex==null) {
-		return (symb.input);
-	} else {
-		return ('\\'+symb.tex);
-	}
-}
 
 function AMTparseSexpr(str) { //parses str and returns [node,tailstr]
   var symbol, node, result, i, st,// rightvert = false,
@@ -546,13 +562,13 @@ function AMTparseSexpr(str) { //parses str and returns [node,tailstr]
 	    if (typeof symbol.invisible == "boolean" && symbol.invisible) 
 		    node = '{'+result[0]+'}';
 	    else {
-		    node = '{'+AMTgetTeXbracket(symbol) + result[0]+'}';
+		    node = '{'+AMTgetTeXsymbol(symbol) + result[0]+'}';
 	    }    
     } else {
 	    if (typeof symbol.invisible == "boolean" && symbol.invisible) 
 		    node = '{\\left.'+result[0]+'}';
 	    else {
-		    node = '{\\left'+AMTgetTeXbracket(symbol) + result[0]+'}';
+		    node = '{\\left'+AMTgetTeXsymbol(symbol) + result[0]+'}';
 	    }
     }
     return [node,result[1]];
@@ -753,10 +769,18 @@ function AMTparseExpr(str,rightbracket) {
 					if (newFrag.charAt(i)==',' && mxanynestingd==1) {
 						subpos[lastsubposstart].push(i);
 					}
+					if (mxanynestingd<0) {  //happens at the end of the row
+						if (lastsubposstart == i+1) { //if at end of row, skip to next row
+							i++;
+						} else { //misformed something - abandon treating as a matrix
+							matrix = false;
+						}
+					}
 				}
+
 				pos.push(len);
 				var lastmxsubcnt = -1;
-				if (mxnestingd==0 && pos.length>0) {
+				if (mxnestingd==0 && pos.length>0 && matrix) {
 					for (i=0;i<pos.length-1;i++) {
 						if (i>0) mxout += '\\\\';
 						if (i==0) {
@@ -791,6 +815,7 @@ function AMTparseExpr(str,rightbracket) {
 					}
 				}
 				mxout += '}';
+
 				if (matrix) { newFrag = mxout;}
 			}
 		}
@@ -798,7 +823,7 @@ function AMTparseExpr(str,rightbracket) {
     
     str = AMremoveCharsAndBlanks(str,symbol.input.length);
     if (typeof symbol.invisible != "boolean" || !symbol.invisible) {
-      node = '\\right'+AMTgetTeXbracket(symbol); //AMcreateMmlNode("mo",document.createTextNode(symbol.output));
+      node = '\\right'+AMTgetTeXsymbol(symbol); //AMcreateMmlNode("mo",document.createTextNode(symbol.output));
       newFrag += node;
       addedright = true;
     } else {
