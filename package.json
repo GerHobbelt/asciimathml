@@ -1,0 +1,26 @@
+{
+  "name": "asciimathml",
+  "version": "1.0.0",
+  "description": "translates simple calculator-style math expressions on a webpage to MathML",
+  "main": "ASCIIMathML.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GerHobbelt/asciimathml.git"
+  },
+  "keywords": [
+    "math",
+    "MathML"
+  ],
+  "author": "asciimath.org",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GerHobbelt/asciimathml/issues"
+  },
+  "homepage": "https://github.com/GerHobbelt/asciimathml#readme"
+}
