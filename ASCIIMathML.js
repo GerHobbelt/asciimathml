@@ -213,7 +213,9 @@ var CONST = 0, UNARY = 1, BINARY = 2, INFIX = 3, LEFTBRACKET = 4,
     LEFTRIGHT = 9, TEXT = 10, BIG = 11, LONG = 12, STRETCHY = 13,
     MATRIX = 14, UNARYUNDEROVER = 15; // token types
 
-var AMquote = {input:"\"",   tag:"mtext", output:"mbox", tex:null, ttype:TEXT};
+var AMquote = {input:"\"", tag:"mtext", output:"mbox", tex:null, ttype:TEXT},
+    AMvar =   {input:"#", tag:"mstyle", atname:"mathvariant", atval:"italic", output:"mathtt", tex:null, ttype:TEXT},
+    AMunit =  {input:"`", tag:"mtext", output:"mbox", tex:null, ttype:TEXT};
 
 var AMsymbols = [
 //some greek symbols
@@ -473,7 +475,7 @@ var AMsymbols = [
 {input:"id", tag:"mrow", ttype:BINARY},
 {input:"class", tag:"mrow", ttype:BINARY},
 {input:"cancel", tag:"menclose", output:"cancel", tex:null, ttype:UNARY},
-AMquote,
+AMquote, AMvar, AMunit,
 {input:"bb", tag:"mstyle", atname:"mathvariant", atval:"bold", output:"bb", tex:null, ttype:UNARY},
 {input:"mathbf", tag:"mstyle", atname:"mathvariant", atval:"bold", output:"mathbf", tex:null, ttype:UNARY},
 {input:"sf", tag:"mstyle", atname:"mathvariant", atval:"sans-serif", output:"sf", tex:null, ttype:UNARY},
@@ -634,7 +636,7 @@ Each terminal symbol is translated into a corresponding mathml node.*/
 var AMnestingDepth,AMpreviousSymbol,AMcurrentSymbol;
 
 function AMparseSexpr(str) { //parses str and returns [node,tailstr]
-  var symbol, node, result, i, st,// rightvert = false,
+  var symbol, node, result, i, st, italic, match, space, // rightvert = false,
     newFrag = document.createDocumentFragment();
   str = AMremoveCharsAndBlanks(str,0);
   symbol = AMgetSymbol(str);             //either a token or a bracket or empty
@@ -675,17 +677,37 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
     }
     return [node,result[1]];
   case TEXT:
-      if (symbol!=AMquote) str = AMremoveCharsAndBlanks(str,symbol.input.length);
+      if (symbol!=AMquote && symbol!=AMvar && symbol!=AMunit) str = AMremoveCharsAndBlanks(str,symbol.input.length);
       if (str.charAt(0)=="{") i=str.indexOf("}");
       else if (str.charAt(0)=="(") i=str.indexOf(")");
       else if (str.charAt(0)=="[") i=str.indexOf("]");
-      else if (symbol==AMquote) i=str.slice(1).indexOf("\"")+1;
+      else if (symbol==AMquote) {
+        i=str.slice(1).indexOf("\"")+1;
+        italic=false;
+        space=false;
+      }
+      else if (symbol==AMvar) {
+        match=str.slice(1).match(/[ !@#$%^&*()_\-+=[\]{}|\\'"<>,:;?\/~`]/);
+        i=(match ? match.index+2 : -1);
+        italic=true;
+        space=false;
+      }
+      else if (symbol==AMunit) {
+        i=str.slice(1).indexOf("`")+1;
+        italic=false;
+        space=true;
+      }
       else i = 0;
       if (i==-1) i = str.length;
       st = str.slice(1,i);
       if (st.charAt(0) == " ") {
         node = createMmlNode("mspace");
         node.setAttribute("width","1ex");
+        newFrag.appendChild(node);
+      }
+      else if (space) {
+        node = createMmlNode("mspace");
+        node.setAttribute("width", "0.5ex");
         newFrag.appendChild(node);
       }
       newFrag.appendChild(
@@ -695,7 +717,7 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
         node.setAttribute("width","1ex");
         newFrag.appendChild(node);
       }
-      str = AMremoveCharsAndBlanks(str,i+1);
+      str = AMremoveCharsAndBlanks(str,i+(italic ? 0 : 1));
       return [createMmlNode("mrow",newFrag),str];
   case UNARYUNDEROVER:
   case UNARY:
