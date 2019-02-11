@@ -1013,7 +1013,6 @@ function AMparseExpr(str,rightbracket) {
       symbol = result[2];
       return [newFrag,str,symbol];
     }
-
   } while ((symbol.ttype != RIGHTBRACKET &&
            (symbol.ttype != LEFTRIGHT || rightbracket)
            || AMnestingDepth == 0) && symbol!=null && symbol.output!="");
