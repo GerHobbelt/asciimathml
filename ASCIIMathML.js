@@ -255,7 +255,7 @@ var AMsymbols = [
 {input:"zeta",   tag:"mi", output:"\u03B6", tex:null, ttype:CONST},
 
 //binary operation symbols
-//{input:"-",  tag:"mo", output:"\u0096", tex:null, ttype:CONST},
+{input:"-",  tag:"mo", output:"-", tex:null, ttype:CONST},
 {input:"*",  tag:"mo", output:"\u22C5", tex:"cdot", ttype:CONST},
 {input:"**", tag:"mo", output:"\u2217", tex:"ast", ttype:CONST},
 {input:"***", tag:"mo", output:"\u22C6", tex:"star", ttype:CONST},
@@ -595,10 +595,10 @@ function AMgetSymbol(str) {
     st = str.slice(0,1); //take 1 character
     tagst = (("A">st || st>"Z") && ("a">st || st>"z")?"mo":"mi");
   }
-  if (st=="-" && AMpreviousSymbol==INFIX) {
+  /*if (st=="-" && AMpreviousSymbol==INFIX) {
     AMcurrentSymbol = INFIX;  //trick "/" into recognizing "-" on second parse
     return {input:st, tag:tagst, output:st, ttype:UNARY, func:true};
-  }
+  }*/
   return {input:st, tag:tagst, output:st, ttype:CONST};
 }
 
@@ -621,9 +621,9 @@ u ::= sqrt | text | bb | other unary symbols for font commands
 b ::= frac | root | stackrel         binary symbols
 l ::= ( | [ | { | (: | {:            left brackets
 r ::= ) | ] | } | :) | :}            right brackets
-S ::= v | lEr | uS | bSS             Simple expression
+S ::= v | lEr | uS | bSS | -S        Simple expression
 I ::= S_S | S^S | S_S^S | S          Intermediate expression
-E ::= IE | I/I                       Expression
+E ::= IE | I/I | I-E | -I/I          Expression
 Each terminal symbol is translated into a corresponding mathml node.*/
 
 var AMnestingDepth,AMpreviousSymbol,AMcurrentSymbol;
@@ -633,8 +633,19 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
     newFrag = document.createDocumentFragment();
   str = AMremoveCharsAndBlanks(str,0);
   symbol = AMgetSymbol(str);             //either a token or a bracket or empty
+
   if (symbol == null || symbol.ttype == RIGHTBRACKET && AMnestingDepth > 0) {
     return [null,str];
+  }
+  if (symbol.input == "-") {
+    str = AMremoveCharsAndBlanks(str,symbol.input.length);
+    result = AMparseSexpr(str,true);
+    if (result[0]==null) {
+      return [createMmlNode("mo",document.createTextNode(symbol.output)), str];
+    }
+    node = createMmlNode("mrow", createMmlNode("mo",document.createTextNode(symbol.output)));
+    node.appendChild(result[0]);
+    return [node,result[1]];
   }
   if (symbol.ttype == DEFINITION) {
     str = symbol.output+AMremoveCharsAndBlanks(str,symbol.input.length);
@@ -860,7 +871,7 @@ function AMparseIexpr(str) {
 }
 
 function AMparseExpr(str,rightbracket) {
-  var symbol, node, result, i,
+  var symbol, node, mrow, result, i, isnegIoverI,
   newFrag = document.createDocumentFragment();
   do {
     str = AMremoveCharsAndBlanks(str,0);
@@ -875,13 +886,39 @@ function AMparseExpr(str,rightbracket) {
         result[0] = createMmlNode("mo",document.createTextNode("\u25A1"));
       else AMremoveBrackets(result[0]);
       str = result[1];
+      //for sake of backwards compatibility, treat -I/I as a special case
+      isnegIoverI = false;
+      if (node.nodeName=='mrow' && node.firstChild.firstChild.nodeValue=="-") {
+        isnegIoverI = true;
+        node.removeChild(node.firstChild);
+      }
       AMremoveBrackets(node);
       node = createMmlNode(symbol.tag,node);
       node.appendChild(result[0]);
-      newFrag.appendChild(node);
+      if (isnegIoverI) {
+      	mrow = createMmlNode("mrow", createMmlNode("mo",document.createTextNode("-")));
+      	mrow.appendChild(node);
+      	console.log(mrow.outerHTML);
+        newFrag.appendChild(mrow);
+      } else {
+      	newFrag.appendChild(node);
+      }
       symbol = AMgetSymbol(str);
     }
     else if (node!=undefined) newFrag.appendChild(node);
+    
+    if (symbol.input == "-" && node.nodeName!='mo') {
+      str = AMremoveCharsAndBlanks(str,symbol.input.length);
+      newFrag.appendChild(createMmlNode(symbol.tag,document.createTextNode("-")));
+      result = AMparseExpr(str,rightbracket);
+      if (result[0] !== null) {
+        newFrag.appendChild(result[0]);
+      }
+      str = result[1];
+      symbol = result[2];
+      return [newFrag,str,symbol];
+    }
+    
   } while ((symbol.ttype != RIGHTBRACKET &&
            (symbol.ttype != LEFTRIGHT || rightbracket)
            || AMnestingDepth == 0) && symbol!=null && symbol.output!="");
@@ -965,7 +1002,7 @@ function AMparseExpr(str,rightbracket) {
       newFrag.appendChild(node);
     }
   }
-  return [newFrag,str];
+  return [newFrag,str,symbol];
 }
 
 function parseMath(str,latex) {
