@@ -365,7 +365,7 @@ var AMsymbols = [
 {input:":'",  tag:"mo", output:"\u2235",  tex:"because", ttype:CONST},
 {input:"/_",  tag:"mo", output:"\u2220",  tex:"angle", ttype:CONST},
 {input:"/_\\",  tag:"mo", output:"\u25B3",  tex:"triangle", ttype:CONST},
-{input:"'",   tag:"mo", output:"\u2032",  tex:"prime", ttype:CONST},
+{input:"'",   tag:"mo", output:["\u2032","\u2033","\u2034","\u2057"],  tex:"prime", ttype:CONST, tietoprev:"msup"},
 {input:"tilde", tag:"mover", output:"~", tex:null, ttype:UNARY, acc:true},
 {input:"\\ ",  tag:"mo", output:"\u00A0", tex:null, ttype:CONST},
 {input:"frown",  tag:"mo", output:"\u2322", tex:null, ttype:CONST},
@@ -506,7 +506,7 @@ function initSymbols() {
     if (AMsymbols[i].tex) {
       AMsymbols.push({input:AMsymbols[i].tex,
         tag:AMsymbols[i].tag, output:AMsymbols[i].output, ttype:AMsymbols[i].ttype,
-        acc:(AMsymbols[i].acc||false)});
+        acc:(AMsymbols[i].acc||false), tietoprev:(AMsymbols[i].tietoprev||false)});
     }
   }
   refreshSymbols();
@@ -574,6 +574,27 @@ function AMgetSymbol(str) {
   AMpreviousSymbol=AMcurrentSymbol;
   if (match!=""){
     AMcurrentSymbol=AMsymbols[mk].ttype;
+  	//handle case where output depends on repetition of a character, like primes
+  	if (typeof AMsymbols[mk].output=="object") {
+  		var nextsym, insym, outsym, symcnt = 1;
+  		insym = AMsymbols[mk].input;
+  		nextsym = str.substr(symcnt*AMsymbols[mk].input.length, AMsymbols[mk].input.length);
+   		while (nextsym == AMsymbols[mk].input) {
+  			symcnt++;
+  			insym += nextsym;
+  			nextsym = str.substr(symcnt*AMsymbols[mk].input.length, AMsymbols[mk].input.length);
+  		}
+  		if (symcnt <= AMsymbols[mk].output.length) {
+  			outsym = AMsymbols[mk].output[symcnt-1];
+  		} else {
+  			outsym = '';
+  			for (var i=0;i<symcnt;i++) {
+  				outsym += AMsymbols[mk].output[0];
+  			}
+  		}
+  		return {tag:AMsymbols[mk].tag, input: insym, output:outsym, 
+  				ttype:AMsymbols[mk].ttype, tietoprev:AMsymbols[mk].tietoprev};
+  	}
     return AMsymbols[mk];
   }
 // if str[0] is a digit or - return maxsubstring of digits.digits
@@ -684,7 +705,10 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
       else if (str.charAt(0)=="(") i=str.indexOf(")");
       else if (str.charAt(0)=="[") i=str.indexOf("]");
       else if (symbol==AMquote) {
-        i=str.slice(1).indexOf("\"")+1;
+        i=0;
+      	do {
+      	  i=str.indexOf("\"",i+1);
+      	} while (str.charAt(i-1)=='\\' && i!=-1);
         italic=false;
         space=false;
       }
@@ -702,6 +726,9 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
       else i = 0;
       if (i==-1) i = str.length;
       st = str.slice(1,i);
+      if (symbol==AMquote) {
+        st = st.replace(/\\\"/g,"\"");
+      }
       if (st.charAt(0) == " ") {
         node = createMmlNode("mspace");
         node.setAttribute("width","1ex");
@@ -729,7 +756,8 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
                              document.createTextNode(symbol.output)),str];
       if (typeof symbol.func == "boolean" && symbol.func) { // functions hack
         st = str.charAt(0);
-          if (st=="^" || st=="_" || st=="/" || st=="|" || st=="," ||
+          if (st=="^" || st=="_" || st=="/" || st=="|" || st=="," || st=="'" || 
+              st=='+' || st=='-' ||
              (symbol.input.length==1 && symbol.input.match(/\w/) && st!="(")) {
           return [createMmlNode(symbol.tag,
                     document.createTextNode(symbol.output)),str];
@@ -864,7 +892,7 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
 }
 
 function AMparseIexpr(str) {
-  var symbol, sym1, sym2, node, result, underover;
+  var symbol, sym1, sym2, node, result, underover, dofunc=false;
   str = AMremoveCharsAndBlanks(str,0);
   sym1 = AMgetSymbol(str);
   result = AMparseSexpr(str);
@@ -897,22 +925,32 @@ function AMparseIexpr(str) {
         node.appendChild(result[0]);
       }
     } else if (symbol.input == "^" && underover) {
-    	node = createMmlNode("mover",node);
-        node.appendChild(result[0]);
+      node = createMmlNode("mover",node);
+      node.appendChild(result[0]);
     } else {
       node = createMmlNode(symbol.tag,node);
       node.appendChild(result[0]);
     }
-    if (typeof sym1.func != 'undefined' && sym1.func) {
-    	sym2 = AMgetSymbol(str);
+    sym2 = AMgetSymbol(str);
+    dofunc = true;
+  }
+  if (symbol.tietoprev) { //connect in any primes
+      node = createMmlNode(symbol.tietoprev,node);
+      result = AMparseSexpr(str);
+      str = result[1];
+      node.appendChild(result[0]);
+      sym2 = AMgetSymbol(str);
+      dofunc = true;
+  }
+  if (dofunc && typeof sym1.func != 'undefined' && sym1.func) {
     	if (sym2.ttype != INFIX && sym2.ttype != RIGHTBRACKET &&
+    	    sym2.input != '+' && sym2.input != '-' &&
     	    (sym1.input.length>1 || sym2.ttype == LEFTBRACKET)) {
     		result = AMparseIexpr(str);
     		node = createMmlNode("mrow",node);
     		node.appendChild(result[0]);
     		str = result[1];
     	}
-    }
   }
   return [node,str];
 }
