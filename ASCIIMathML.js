@@ -323,10 +323,10 @@ var AMsymbols = [
 {input:"|==",  tag:"mo", output:"\u22A8", tex:"models", ttype:CONST},
 
 //grouping brackets
-{input:"(", tag:"mo", output:"(", tex:null, ttype:LEFTBRACKET},
-{input:")", tag:"mo", output:")", tex:null, ttype:RIGHTBRACKET},
-{input:"[", tag:"mo", output:"[", tex:null, ttype:LEFTBRACKET},
-{input:"]", tag:"mo", output:"]", tex:null, ttype:RIGHTBRACKET},
+{input:"(", tag:"mo", output:"(", tex:"left(", ttype:LEFTBRACKET},
+{input:")", tag:"mo", output:")", tex:"right)", ttype:RIGHTBRACKET},
+{input:"[", tag:"mo", output:"[", tex:"left[", ttype:LEFTBRACKET},
+{input:"]", tag:"mo", output:"]", tex:"right]", ttype:RIGHTBRACKET},
 {input:"{", tag:"mo", output:"{", tex:null, ttype:LEFTBRACKET},
 {input:"}", tag:"mo", output:"}", tex:null, ttype:RIGHTBRACKET},
 {input:"|", tag:"mo", output:"|", tex:null, ttype:LEFTRIGHT},
@@ -423,7 +423,7 @@ var AMsymbols = [
 {input:"Arccos",  tag:"mo", output:"Arccos", tex:null, ttype:UNARY, func:true},
 {input:"Arctan",  tag:"mo", output:"Arctan", tex:null, ttype:UNARY, func:true},
 {input:"Sinh", tag:"mo", output:"Sinh", tex:null, ttype:UNARY, func:true},
-{input:"Sosh", tag:"mo", output:"Cosh", tex:null, ttype:UNARY, func:true},
+{input:"Cosh", tag:"mo", output:"Cosh", tex:null, ttype:UNARY, func:true},
 {input:"Tanh", tag:"mo", output:"Tanh", tex:null, ttype:UNARY, func:true},
 {input:"Cot",  tag:"mo", output:"Cot", tex:null, ttype:UNARY, func:true},
 {input:"Sec",  tag:"mo", output:"Sec", tex:null, ttype:UNARY, func:true},
@@ -725,7 +725,16 @@ function AMparseSexpr(str) { //parses str and returns [node,tailstr]
 	return [node,result[1]];
       } else if (typeof symbol.acc == "boolean" && symbol.acc) {   // accent
         node = createMmlNode(symbol.tag,result[0]);
-        node.appendChild(createMmlNode("mo",document.createTextNode(symbol.output)));
+        var accnode = createMmlNode("mo",document.createTextNode(symbol.output));
+        if (symbol.input=="vec" && ( 
+		(result[0].nodeName=="mrow" && result[0].childNodes.length==1 
+			&& result[0].firstChild.firstChild.nodeValue !== null 
+			&& result[0].firstChild.firstChild.nodeValue.length==1) ||
+		(result[0].firstChild.nodeValue !== null 
+			&& result[0].firstChild.nodeValue.length==1) )) {
+			accnode.setAttribute("stretchy",false);
+        }
+        node.appendChild(accnode);
         return [node,result[1]];
       } else {                        // font change command
         if (!isIE && typeof symbol.codes != "undefined") {

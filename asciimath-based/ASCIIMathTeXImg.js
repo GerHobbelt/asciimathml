@@ -170,10 +170,10 @@ var AMsymbols = [
 {input:"|==",  tag:"mo", output:"\u22A8", tex:"models", ttype:CONST}, //mimetex doesn't support
 
 //grouping brackets
-{input:"(", tag:"mo", output:"(", tex:null, ttype:LEFTBRACKET, val:true},
-{input:")", tag:"mo", output:")", tex:null, ttype:RIGHTBRACKET, val:true},
-{input:"[", tag:"mo", output:"[", tex:null, ttype:LEFTBRACKET, val:true},
-{input:"]", tag:"mo", output:"]", tex:null, ttype:RIGHTBRACKET, val:true},
+{input:"(", tag:"mo", output:"(", tex:"left(", ttype:LEFTBRACKET, val:true},
+{input:")", tag:"mo", output:")", tex:"right)", ttype:RIGHTBRACKET, val:true},
+{input:"[", tag:"mo", output:"[", tex:"left[", ttype:LEFTBRACKET, val:true},
+{input:"]", tag:"mo", output:"]", tex:"right]", ttype:RIGHTBRACKET, val:true},
 {input:"{", tag:"mo", output:"{", tex:"lbrace", ttype:LEFTBRACKET},
 {input:"}", tag:"mo", output:"}", tex:"rbrace", ttype:RIGHTBRACKET},
 {input:"|", tag:"mo", output:"|", tex:null, ttype:LEFTRIGHT, val:true},
@@ -265,7 +265,7 @@ var AMsymbols = [
 {input:"Arccos",  tag:"mo", output:"Arccos", tex:null, ttype:UNARY, func:true},
 {input:"Arctan",  tag:"mo", output:"Arctan", tex:null, ttype:UNARY, func:true},
 {input:"Sinh", tag:"mo", output:"Sinh", tex:null, ttype:UNARY, func:true},
-{input:"Sosh", tag:"mo", output:"Cosh", tex:null, ttype:UNARY, func:true},
+{input:"Cosh", tag:"mo", output:"Cosh", tex:null, ttype:UNARY, func:true},
 {input:"Tanh", tag:"mo", output:"Tanh", tex:null, ttype:UNARY, func:true},
 {input:"Cot",  tag:"mo", output:"Cot", tex:null, ttype:UNARY, func:true},
 {input:"Sec",  tag:"mo", output:"Sec", tex:null, ttype:UNARY, func:true},
