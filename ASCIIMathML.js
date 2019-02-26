@@ -689,6 +689,7 @@ var AMparseSexpr = function AMparseSexpr(str) { //parses str and returns [node,t
     str = AMremoveCharsAndBlanks(str,symbol.input.length);
     return [createMmlNode(symbol.tag,        //its a constant
                              document.createTextNode(symbol.output)),str];
+
   case LEFTBRACKET:   //read (expr+)
     AMnestingDepth++;
     str = AMremoveCharsAndBlanks(str,symbol.input.length);
@@ -705,6 +706,8 @@ var AMparseSexpr = function AMparseSexpr(str) { //parses str and returns [node,t
 
   case TEXT:
     if (symbol!=AMquote && symbol!=AMvar && symbol!=AMunit) str = AMremoveCharsAndBlanks(str,symbol.input.length);
+    italic=false;
+    space=false;
     if (str.charAt(0)=="{") i=str.indexOf("}");
     else if (str.charAt(0)=="(") i=str.indexOf(")");
     else if (str.charAt(0)=="[") i=str.indexOf("]");
@@ -849,9 +852,9 @@ var AMparseSexpr = function AMparseSexpr(str) { //parses str and returns [node,t
       node = createMmlNode(symbol.tag,result2[0]);
 
       // Set the correct attribute
-      if (symbol.input === "color") node.setAttribute("mathcolor", st)
-      else if (symbol.input === "class") node.setAttribute("class", st)
-      else if (symbol.input === "id") node.setAttribute("id", st)
+      if (symbol.input === "color") node.setAttribute("mathcolor", st);
+      else if (symbol.input === "class") node.setAttribute("class", st);
+      else if (symbol.input === "id") node.setAttribute("id", st);
       return [node,result2[1]];
     }
     if (symbol.input=="root" || symbol.output=="stackrel")
@@ -1066,7 +1069,7 @@ var AMparseExpr = function AMparseExpr(str,rightbracket) {
                   node.removeChild(node.firstChild); //remove ,
                   if (node.firstChild.nodeName=="mrow" && node.firstChild.childNodes.length==1 &&
                       node.firstChild.firstChild.firstChild.nodeValue=="\u2223") {
-                    //is columnline marker - skip it
+                    // is columnline marker - skip it
                     if (i==0) { columnlines.push("solid"); }
                     node.removeChild(node.firstChild); //remove mrow
                     node.removeChild(node.firstChild); //remove ,
