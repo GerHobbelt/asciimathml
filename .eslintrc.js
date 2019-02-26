@@ -1,8 +1,8 @@
 module.exports = {
     "root": true,
     "extends": [
-        // "eslint:recommended",
-        "eslint-config-semistandard"
+        "eslint:recommended",
+        // "eslint-config-semistandard"
     ],
     "env": { 
         "es6": false,
@@ -25,7 +25,7 @@ module.exports = {
         "max-len": "off",                 // disables line length check
         // "max-len": ["error", {"code": 80, "ignoreUrls": true}],
         // "curly": ["error", "all"],        // wrap all if/else statements in {...} curly braces
-        "max-statements-per-line": ["error", { "max": 1 }],
+        // "max-statements-per-line": ["error", { "max": 1 }],
         // "one-var-declaration-per-line": ["error", "always"],
         // "one-var": ["error", "never"],    // break up var decls into multiple stmts: one per var.
         "nonblock-statement-body-position": ["error", "below"],
