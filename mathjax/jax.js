@@ -40,7 +40,6 @@
  */
 
 (function (ASCIIMATH) {
-
   var MML;  // Filled in later
 
   //
@@ -54,40 +53,65 @@
       this.childNodes = [];
     },
     appendChild: function (node) {
-      if (node.parent) {node.parent.removeChild(node)}
-      if (this.lastChild) {this.lastChild.nextSibling = node}
-      if (!this.firstChild) {this.firstChild = node}
-      this.childNodes.push(node); node.parent = this;
+      if (node.parent) {
+        node.parent.removeChild(node);
+      }
+      if (this.lastChild) {
+        this.lastChild.nextSibling = node;
+      }
+      if (!this.firstChild) {
+        this.firstChild = node;
+      }
+      this.childNodes.push(node); 
+      node.parent = this;
       this.lastChild = node;
       return node;
     },
     removeChild: function (node) {
-      for (var i = 0, m = this.childNodes.length; i < m; i++)
-        {if (this.childNodes[i] === node) break}
+      for (var i = 0, m = this.childNodes.length; i < m; i++) {
+        if (this.childNodes[i] === node) 
+          break;
+      }
       if (i === m) return;
       this.childNodes.splice(i,1);
-      if (node === this.firstChild) {this.firstChild = node.nextSibling}
-      if (node === this.lastChild) {
-        if (!this.childNodes.length) {this.lastChild = null}
-          else {this.lastChild = this.childNodes[this.childNodes.length-1]}
+      if (node === this.firstChild) {
+        this.firstChild = node.nextSibling;
       }
-      if (i) {this.childNodes[i-1].nextSibling = node.nextSibling}
+      if (node === this.lastChild) {
+        if (!this.childNodes.length) {
+          this.lastChild = null;
+        } else {
+          this.lastChild = this.childNodes[this.childNodes.length-1];
+        }
+      }
+      if (i) {
+        this.childNodes[i-1].nextSibling = node.nextSibling;
+      }
       node.nextSibling = node.parent = null;
       return node;
     },
     replaceChild: function (node,old) {
-      for (var i = 0, m = this.childNodes.length; i < m; i++)
-        {if (this.childNodes[i] === old) break}
-      if (i) {this.childNodes[i-1].nextSibling = node} else {this.firstChild = node}
+      for (var i = 0, m = this.childNodes.length; i < m; i++) {
+        if (this.childNodes[i] === old) 
+          break;
+      }
+      if (i) {
+        this.childNodes[i-1].nextSibling = node;
+      } else {
+        this.firstChild = node;
+      }
       if (i >= m-1) {this.lastChild = node}
-      this.childNodes[i] = node; node.nextSibling = old.nextSibling;
+      this.childNodes[i] = node; 
+      node.nextSibling = old.nextSibling;
       old.nextSibling = old.parent = null;
       return old;
     },
     hasChildNodes: function (node) {
-      return (this.childNodes.length>0);
+      return (this.childNodes.length > 0);
     },
-    toString: function () {return "{"+this.childNodes.join("")+"}"}
+    toString: function () {
+      return "{"+this.childNodes.join("")+"}";
+    }
   });
 
   var INITASCIIMATH = function () {
@@ -706,13 +730,13 @@ var initSymbols = function initSymbols() {
     }
   }
   refreshSymbols();
-}
+};
 
 var refreshSymbols = function refreshSymbols(){
   var i;
   AMsymbols.sort(compareNames);
   for (i=0; i<AMsymbols.length; i++) AMnames[i] = AMsymbols[i].input;
-}
+};
 
 function define(oldstr,newstr) {
   AMsymbols.push({input:oldstr, tag:"mo", output:newstr, tex:null, ttype:DEFINITION});
@@ -745,7 +769,7 @@ var position = function position(arr, str, n) {
     for (var i=n; i<arr.length && arr[i]<str; i++);
   }
   return i; // i=arr.length || arr[i]>=str
-}
+};
 
 var AMgetSymbol = function AMgetSymbol(str) {
 //return maximal initial substring of str that appears in names
@@ -773,7 +797,8 @@ var AMgetSymbol = function AMgetSymbol(str) {
     AMcurrentSymbol=AMsymbols[mk].ttype;
     //handle case where output depends on repetition of a character, like primes
     if (typeof AMsymbols[mk].output=="object") {
-      var nextsym, insym, outsym, symcnt = 1;
+      var nextsym, insym, outsym;
+      var symcnt = 1;
       insym = AMsymbols[mk].input;
       nextsym = str.substr(symcnt*AMsymbols[mk].input.length, AMsymbols[mk].input.length);
       while (nextsym == AMsymbols[mk].input) {
@@ -827,7 +852,7 @@ var AMgetSymbol = function AMgetSymbol(str) {
     return {input:st, tag:tagst, output:st, ttype:UNARY, func:true};
   }*/
   return {input:st, tag:tagst, output:st, ttype:CONST};
-}
+};
 
 var AMremoveBrackets = function AMremoveBrackets(node) {
   var st;
@@ -840,7 +865,7 @@ var AMremoveBrackets = function AMremoveBrackets(node) {
     st = node.lastChild.firstChild.nodeValue;
     if (st==")" || st=="]" || st=="}") node.removeChild(node.lastChild);
   }
-}
+};
 
 /*Parsing ASCII math expressions with the following grammar
 v ::= [A-Za-z] | greek letters | numbers | other constant symbols
@@ -1297,7 +1322,7 @@ var AMparseExpr = function AMparseExpr(str,rightbracket) {
     }
   }
   return [newFrag,str,symbol];
-}
+};
 
 var parseMath = function parseMath(str,latex) {
   var frag, node;
@@ -1324,7 +1349,7 @@ var parseMath = function parseMath(str,latex) {
     // fixed by djhsu so newline does not show in Gecko
     node.setAttribute("title",str.replace(/\s+/g," "));
   return node;
-}
+};
 
 /*
 function strarr2docFrag(arr, linebreaks, latex) {
@@ -1625,7 +1650,8 @@ var junk = [window, navigator]; junk = null;
     postfilterHooks:   MathJax.Callback.Hooks(true),   // hooks to run after processing AsciiMath
 
     Translate: function (script) {
-      var mml, math = MathJax.HTML.getScript(script);
+      var mml;
+      var math = MathJax.HTML.getScript(script);
       var data = {math:math, display:displaystyle, script:script};
       var callback = this.prefilterHooks.Execute(data);
       if (callback) return callback;
@@ -1633,7 +1659,9 @@ var junk = [window, navigator]; junk = null;
       try {
         mml = this.AM.parseMath(math);
       } catch(err) {
-        if (!err.asciimathError) {throw err}
+        if (!err.asciimathError) {
+          throw err;
+        }
         mml = this.formatError(err,math);
       }
       data.math = MML(mml);

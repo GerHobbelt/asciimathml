@@ -12,7 +12,7 @@ copy:
 	cp asciimath-based/*.js dist/
 
 pretty: copy
-	./node_modules/.bin/prettier --write dist/*.js dist/**/*.js
+	./node_modules/.bin/prettier-eslint --eslint-config-path=.eslintrc.js --config=.prettierrc.js --write dist/*.js dist/**/*.js
 
 lint:
 	./node_modules/.bin/eslint .
