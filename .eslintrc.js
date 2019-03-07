@@ -24,7 +24,8 @@ module.exports = {
         "indent": ["off", 2],
         "max-len": "off",                 // disables line length check
         // "max-len": ["error", {"code": 80, "ignoreUrls": true}],
-        // "curly": ["error", "all"],        // wrap all if/else statements in {...} curly braces
+        "curly": ["warn", "all"],        // wrap all if/else statements in {...} curly braces
+        "eqeqeq": ["warn", "always", {"null": "ignore"}],
         // "max-statements-per-line": ["error", { "max": 1 }],
         // "one-var-declaration-per-line": ["error", "always"],
         // "one-var": ["error", "never"],    // break up var decls into multiple stmts: one per var.

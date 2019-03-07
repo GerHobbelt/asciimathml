@@ -82,8 +82,10 @@ if (document.getElementById==null)
 // all further global variables start with "LM"
 
 function LMcreateElementXHTML(t) {
-  if (isIE) return document.createElement(t);
-  else return document.createElementNS("http://www.w3.org/1999/xhtml",t);
+  if (isIE) 
+return document.createElement(t);
+  else 
+return document.createElementNS("http://www.w3.org/1999/xhtml",t);
 }
 
 function LMnoMathMLNote() {
@@ -107,8 +109,10 @@ function LMnoMathMLNote() {
 
 function LMisMathMLavailable() {
   if (navigator.appName.slice(0,8)=="Netscape")
-    if (navigator.appVersion.slice(0,1)>="5") return null;
-    else return LMnoMathMLNote();
+    if (navigator.appVersion.slice(0,1)>="5") 
+return null;
+    else 
+return LMnoMathMLNote();
   else if (navigator.appName.slice(0,9)=="Microsoft")
     try {
         var ActiveX = new ActiveXObject("MathPlayer.Factory.1");
@@ -116,7 +120,8 @@ function LMisMathMLavailable() {
     } catch (e) {
         return LMnoMathMLNote();
     }
-  else return LMnoMathMLNote();
+  else 
+return LMnoMathMLNote();
 }
 
 // character lists for Mozilla/Netscape fonts
@@ -535,14 +540,18 @@ function LMinitSymbols() {
 var LMmathml = "http://www.w3.org/1998/Math/MathML";
 
 function LMcreateElementMathML(t) {
-  if (isIE) return document.createElement("m:"+t);
-  else return document.createElementNS(LMmathml,t);
+  if (isIE) 
+return document.createElement("m:"+t);
+  else 
+return document.createElementNS(LMmathml,t);
 }
 
 function LMcreateMmlNode(t,frag) {
 //  var node = LMcreateElementMathML(name);
-  if (isIE) var node = document.createElement("m:"+t);
-  else var node = document.createElementNS(LMmathml,t);
+  if (isIE) 
+var node = document.createElement("m:"+t);
+  else 
+var node = document.createElementNS(LMmathml,t);
   node.appendChild(frag);
   return node;
 }
@@ -556,7 +565,8 @@ function LMremoveCharsAndBlanks(str,n) {
 //remove n characters and any following blanks
   var st;
   st = str.slice(n);
-  for (var i=0; i<st.length && st.charCodeAt(i)<=32; i=i+1);
+  for (var i=0; i<st.length && st.charCodeAt(i)<=32; i=i+1)
+;
   return st.slice(i);
 }
 
@@ -773,7 +783,8 @@ function LMparseSexpr(str) { //parses str and returns [node,tailstr,(node)tag]
         str = LMremoveCharsAndBlanks(str,symbol.input.length);
         if (symbol.input != "{")
           mask = "l";
-        else do {
+        else 
+do {
           symbol = LMgetSymbol(str);
           if (symbol != null) {
             str = LMremoveCharsAndBlanks(str,symbol.input.length);
@@ -817,8 +828,10 @@ function LMparseSexpr(str) { //parses str and returns [node,tailstr,(node)tag]
     }
     
   case TEXT:
-      if (str.charAt(0)=="{") i=str.indexOf("}");
-      else i = 0;
+      if (str.charAt(0)=="{") 
+i=str.indexOf("}");
+      else 
+i = 0;
       if (i==-1)
         i = str.length;
       st = str.slice(1,i);
@@ -839,7 +852,8 @@ function LMparseSexpr(str) { //parses str and returns [node,tailstr,(node)tag]
 
   case UNARY:
       result = LMparseSexpr(str);
-      if (result[0]==null) return [LMcreateMmlNode(symbol.tag,
+      if (result[0]==null) 
+return [LMcreateMmlNode(symbol.tag,
                              document.createTextNode(symbol.output)),str];
       if (typeof symbol.func == "boolean" && symbol.func) { // functions hack
         st = str.charAt(0);
@@ -909,17 +923,20 @@ function LMparseSexpr(str) { //parses str and returns [node,tailstr,(node)tag]
                               result[0].childNodes[i].firstChild.nodeValue);
               var newst = [];
               for (var j=0; j<st.length; j++)
-    if (st.charCodeAt(j)>64 && st.charCodeAt(j)<91) newst
+    if (st.charCodeAt(j)>64 && st.charCodeAt(j)<91) 
+newst
 = newst +
                     symbol.codes[st.charCodeAt(j)-65];
                 else if (st.charCodeAt(j)>96 && st.charCodeAt(j)<123)
 newst = newst +
                     symbol.codes[st.charCodeAt(j)-71];
-                else newst = newst + st.charAt(j);
+                else 
+newst = newst + st.charAt(j);
               if (result[0].nodeName=="mi")
                 result[0]=LMcreateElementMathML("mo").
                           appendChild(document.createTextNode(newst));
-              else result[0].replaceChild(LMcreateElementMathML("mo").
+              else 
+result[0].replaceChild(LMcreateElementMathML("mo").
           appendChild(document.createTextNode(newst)),result[0].childNodes[i]);
             }
         }
@@ -933,15 +950,18 @@ newst = newst +
       
   case BINARY:
     result = LMparseSexpr(str);
-    if (result[0]==null) return [LMcreateMmlNode("mo",
+    if (result[0]==null) 
+return [LMcreateMmlNode("mo",
          document.createTextNode(symbol.input)),str,null];
     result2 = LMparseSexpr(result[1]);
-    if (result2[0]==null) return [LMcreateMmlNode("mo",
+    if (result2[0]==null) 
+return [LMcreateMmlNode("mo",
          document.createTextNode(symbol.input)),str,null];
     if (symbol.input=="\\root" || symbol.input=="\\stackrel")
       newFrag.appendChild(result2[0]);
     newFrag.appendChild(result[0]);
-    if (symbol.input=="\\frac") newFrag.appendChild(result2[0]);
+    if (symbol.input=="\\frac") 
+newFrag.appendChild(result2[0]);
     return [LMcreateMmlNode(symbol.tag,newFrag),result2[1],symbol.tag];
 
   case INFIX:
@@ -1066,7 +1086,8 @@ function LMparseExpr(str,rightbracket,matrix) {
         node.removeChild(node.firstChild); //remove &
         row.appendChild(LMcreateMmlNode("mtd",frag));
         k++;
-      } else frag.appendChild(node.firstChild);
+      } else 
+frag.appendChild(node.firstChild);
     }
     row.appendChild(LMcreateMmlNode("mtd",frag));
     if (newFrag.childNodes.length>2) {
@@ -1088,8 +1109,10 @@ function LMparseExpr(str,rightbracket,matrix) {
 function LMparseMath(str) {
   var result;
   var node = LMcreateElementMathML("mstyle");
-  if (mathcolor != "") node.setAttribute("mathcolor",mathcolor);
-  if (mathfontfamily != "") node.setAttribute("fontfamily",mathfontfamily);
+  if (mathcolor != "") 
+node.setAttribute("mathcolor",mathcolor);
+  if (mathfontfamily != "") 
+node.setAttribute("fontfamily",mathfontfamily);
   node.appendChild(LMparseExpr(str.replace(/^\s+/g,""),false,false)[0]);
   node = LMcreateMmlNode("math",node);
   if (showasciiformulaonhover)                      //fixed by djhsu so newline
@@ -1107,7 +1130,8 @@ function LMstrarr2docFrag(arr, linebreaks) {
   var newFrag=document.createDocumentFragment();
   var expr = false;
   for (var i=0; i<arr.length; i++) {
-    if (expr) newFrag.appendChild(LMparseMath(arr[i]));
+    if (expr) 
+newFrag.appendChild(LMparseMath(arr[i]));
     else {
       var arri = (linebreaks ? arr[i].split("\n\n") : [arr[i]]);
       newFrag.appendChild(LMcreateElementXHTML("span").
@@ -1151,17 +1175,20 @@ function LMprocessNodeR(n, linebreaks) {
             if (alertIfNoMathML)
               alert("To view the ASCIIMathML notation use Internet Explorer 6 +\nMathPlayer (free from www.dessci.com)\n\
                 or Firefox/Mozilla/Netscape");
-            else LMbody.insertBefore(nd,LMbody.childNodes[0]);
+            else 
+LMbody.insertBefore(nd,LMbody.childNodes[0]);
         }
         if (!LMnoMathML) {
           frg = LMstrarr2docFrag(arr,n.nodeType==8);
           var len = frg.childNodes.length;
           n.parentNode.replaceChild(frg,n);
           return len-1;
-        } else return 0;
+        } else 
+return 0;
       }
     }
-   } else return 0;
+   } else 
+return 0;
   } else if (n.nodeName!="math") {
     for (i=0; i<n.childNodes.length; i++)
       i += LMprocessNodeR(n.childNodes[i], linebreaks);
@@ -1186,7 +1213,8 @@ function LMprocessNode(n, linebreaks, spanclassLM) {
   }
   if (isIE) { //needed to match size and font of formula to surrounding text
     frag = document.getElementsByTagName('math');
-    for (var i=0;i<frag.length;i++) frag[i].update()
+    for (var i=0;i<frag.length;i++) 
+frag[i].update()
   }
 }
 

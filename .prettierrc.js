@@ -2,7 +2,7 @@ module.exports = {
   "arrowParens": "avoid",
 
   "trailingComma": "es5",
-  "trailingComma": "all",
+  //"trailingComma": "all",
   
   "useTabs": false,
   "semi": true,
