@@ -1,3 +1,5 @@
+/* global $, asciimath */
+
 var unittests = [
 //single symbol output
 {input: "!=", output:"<mo>≠</mo>"},
