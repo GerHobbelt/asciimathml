@@ -209,7 +209,7 @@ var INITASCIIMATH = function () {
       return old;
     },
     hasChildNodes: function (node) {
-      return (this.childNodes.length > 0);
+      return this.childNodes.length > 0;
     },
     setAttribute: function (name, value) {
       this[name] = value;
@@ -247,14 +247,14 @@ var document = {
 var navigator = { appName: "MathJax" }; // hide the true navigator object
 
 /******************************************************************
- *
- *   The following section is ASCIIMathML.js Version 2.2
- *   (c) Peter Jipsen, used with permission.
- *
- *   Some sections are commented out to save space in the
- *   minified version (but that is not strictly necessary).
- *
- ******************************************************************/
+   *
+   *   The following section is ASCIIMathML.js Version 2.2
+   *   (c) Peter Jipsen, used with permission.
+   *
+   *   Some sections are commented out to save space in the
+   *   minified version (but that is not strictly necessary).
+   *
+   ******************************************************************/
 
 /*
 ASCIIMathML.js
@@ -296,28 +296,28 @@ THE SOFTWARE.
 //var asciimath = {};
 
 //(function () {
-var mathcolor = "blue";          // change it to "" (to inherit) or another color
+var mathcolor = "blue"; // change it to "" (to inherit) or another color
 //var mathfontsize = "1em";      // change to e.g. 1.2em for larger math
-var mathfontfamily = "serif";    // change to "" to inherit (works in IE)
-                                 // or another family (e.g. "arial")
+var mathfontfamily = "serif"; // change to "" to inherit (works in IE)
+// or another family (e.g. "arial")
 //var automathrecognize = false; // writing "amath" on page makes this true
 //var checkForMathML = true;     // check if browser can display MathML
 //var notifyIfNoMathML = true;   // display note if no MathML capability
 //var alertIfNoMathML = false;   // show alert box if no MathML capability
 //var translateOnLoad = true;    // set to false to do call translators from js
-                                 // set to `true` to autotranslate
+// set to `true` to autotranslate
 //var translateASCIIMath = true; // false to preserve `..`
-var displaystyle = true;         // puts limits above and below large operators
+var displaystyle = true; // puts limits above and below large operators
 var showasciiformulaonhover = true; // helps students learn ASCIIMath
-var decimalsign = ".";           // change to "," if you like, beware of `(1,2)`!
+var decimalsign = "."; // change to "," if you like, beware of `(1,2)`!
 //var AMdelimiter1 = "`";        // can use other characters
 //var AMescape1 = "\\\\`";       // can use other characters
 //var AMdocumentId = "wikitext"; // PmWiki element containing math (default=body)
-var fixphi = true;               // false to return to legacy phi/varphi mapping
+var fixphi = true; // false to return to legacy phi/varphi mapping
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-var isIE = (navigator.appName.slice(0,9) === "Microsoft");
+var isIE = navigator.appName.slice(0, 9) === "Microsoft";
 
 /////////////////////////////////////////////////////////////////
 // JAX: remove from here
@@ -454,7 +454,7 @@ function translate(spanclassAM) {
     var body = document.getElementsByTagName("body")[0];
     var processN = document.getElementById(AMdocumentId);
     if (translateASCIIMath) {
-      AMprocessNode((processN != null ? processN : body), false, spanclassAM);
+      AMprocessNode(processN != null ? processN : body, false, spanclassAM);
     }
   }
 }
@@ -1177,7 +1177,7 @@ function AMgetSymbol(str) {
   } else {
     k = 2;
     st = str.slice(0, 1); //take 1 character
-    tagst = (("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi");
+    tagst = ("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi";
   }
   if (st === "-" && AMpreviousSymbol === INFIX) {
     AMcurrentSymbol = INFIX; //trick "/" into recognizing "-" on second parse
@@ -1309,9 +1309,7 @@ function AMparseSexpr(str) {
     if (typeof symbol.func === "boolean" && symbol.func) {
       // functions hack
       st = str.charAt(0);
-      if (st === "^" || st === "_" || st === "/" || st === "|" || st === "," || 
-          (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
-      ) {
+      if (st === "^" || st === "_" || st === "/" || st === "|" || st === "," || (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")) {
         return [createMmlNode(symbol.tag, document.createTextNode(symbol.output)), str];
       } else {
         node = createMmlNode("mrow", createMmlNode(symbol.tag, document.createTextNode(symbol.output)));
@@ -1340,12 +1338,8 @@ function AMparseSexpr(str) {
       var accnode = createMmlNode("mo", document.createTextNode(symbol.output));
       if (
         symbol.input === "vec" &&
-        ((result[0].nodeName === "mrow" &&
-          result[0].childNodes.length === 1 &&
-          result[0].firstChild.firstChild.nodeValue !== null &&
-          result[0].firstChild.firstChild.nodeValue.length === 1) ||
-          (result[0].firstChild.nodeValue != null && result[0].firstChild.nodeValue.length === 1)
-        )
+            ((result[0].nodeName === "mrow" && result[0].childNodes.length === 1 && result[0].firstChild.firstChild.nodeValue !== null && result[0].firstChild.firstChild.nodeValue.length === 1) ||
+              (result[0].firstChild.nodeValue != null && result[0].firstChild.nodeValue.length === 1))
       ) {
         accnode.setAttribute("stretchy", false);
       }
@@ -1507,7 +1501,7 @@ function AMparseIexpr(str) {
     //if (symbol.input === "/") {
     //  AMremoveBrackets(node);
     //}
-    underover = (sym1.ttype == UNDEROVER || sym1.ttype == UNARYUNDEROVER);
+    underover = sym1.ttype == UNDEROVER || sym1.ttype == UNARYUNDEROVER;
     if (symbol.input === "_") {
       sym2 = AMgetSymbol(str);
       if (sym2.input == "^") {
@@ -1515,12 +1509,12 @@ function AMparseIexpr(str) {
         var res2 = AMparseSexpr(str);
         AMremoveBrackets(res2[0]);
         str = res2[1];
-        node = createMmlNode((underover ? "munderover" : "msubsup"), node);
+        node = createMmlNode(underover ? "munderover" : "msubsup", node);
         node.appendChild(result[0]);
         node.appendChild(res2[0]);
         node = createMmlNode("mrow", node); // so sum does not stretch
       } else {
-        node = createMmlNode((underover ? "munder" : "msub"), node);
+        node = createMmlNode(underover ? "munder" : "msub", node);
         node.appendChild(result[0]);
       }
     } else if (symbol.input == "^" && underover) {
@@ -1532,9 +1526,7 @@ function AMparseIexpr(str) {
     }
     if (typeof sym1.func !== "undefined" && sym1.func) {
       sym2 = AMgetSymbol(str);
-      if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET && 
-        (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
-      ) {
+      if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET && (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)) {
         result = AMparseIexpr(str);
         node = createMmlNode("mrow", node);
         node.appendChild(result[0]);
@@ -1575,25 +1567,13 @@ function AMparseExpr(str, rightbracket) {
     } else if (node != undefined) {
       newFrag.appendChild(node);
     }
-  } while (((
-        symbol.ttype !== RIGHTBRACKET && 
-        (symbol.ttype !== LEFTRIGHT || rightbracket)
-      ) || 
-      AMnestingDepth === 0
-    ) && 
-    symbol != null && symbol.output !== ""
-  );
+  } while (((symbol.ttype !== RIGHTBRACKET && (symbol.ttype !== LEFTRIGHT || rightbracket)) || AMnestingDepth === 0) && symbol != null && symbol.output !== "");
   if (symbol.ttype === RIGHTBRACKET || symbol.ttype === LEFTRIGHT) {
     //if (AMnestingDepth > 0) {
     //  AMnestingDepth--;
     //}
     var len = newFrag.childNodes.length;
-    if (
-      len > 0 &&
-      newFrag.childNodes[len - 1].nodeName === "mrow" &&
-      newFrag.childNodes[len - 1].lastChild &&
-      newFrag.childNodes[len - 1].lastChild.firstChild
-    ) {
+    if (len > 0 && newFrag.childNodes[len - 1].nodeName === "mrow" && newFrag.childNodes[len - 1].lastChild && newFrag.childNodes[len - 1].lastChild.firstChild) {
       //matrix
       //removed to allow row vectors: //&& len>1 &&
       //newFrag.childNodes[len-2].nodeName == "mo" &&
@@ -1609,12 +1589,8 @@ function AMparseExpr(str, rightbracket) {
             pos[i] = [];
             node = newFrag.childNodes[i];
             if (matrix) {
-              matrix = (
-                node.nodeName === "mrow" &&
-                (i === m - 1 || (node.nextSibling.nodeName === "mo" && node.nextSibling.firstChild.nodeValue === ",")) &&
-                node.firstChild.firstChild.nodeValue === left &&
-                node.lastChild.firstChild.nodeValue === right
-              );
+              matrix =
+                  node.nodeName === "mrow" && (i === m - 1 || (node.nextSibling.nodeName === "mo" && node.nextSibling.firstChild.nodeValue === ",")) && node.firstChild.firstChild.nodeValue === left && node.lastChild.firstChild.nodeValue === right;
             }
             if (matrix) {
               for (var j = 0; j < node.childNodes.length; j++) {
@@ -1624,7 +1600,7 @@ function AMparseExpr(str, rightbracket) {
               }
             }
             if (matrix && i > 1) {
-              matrix = (pos[i].length === pos[i - 2].length);
+              matrix = pos[i].length === pos[i - 2].length;
             }
           }
           matrix = matrix && (pos.length > 1 || pos[0].length > 0);
@@ -1645,11 +1621,7 @@ function AMparseExpr(str, rightbracket) {
               for (j = 1; j < n - 1; j++) {
                 if (typeof pos[i][k] !== "undefined" && j === pos[i][k]) {
                   node.removeChild(node.firstChild); //remove ,
-                  if (
-                    node.firstChild.nodeName === "mrow" &&
-                    node.firstChild.childNodes.length === 1 &&
-                    node.firstChild.firstChild.firstChild.nodeValue === "\u2223"
-                  ) {
+                  if (node.firstChild.nodeName === "mrow" && node.firstChild.childNodes.length === 1 && node.firstChild.firstChild.firstChild.nodeValue === "\u2223") {
                     // is columnline marker - skip it
                     if (i === 0) {
                       columnlines.push("solid");
@@ -1741,13 +1713,11 @@ function strarr2docFrag(arr, linebreaks, latex) {
     if (expr) {
       newFrag.appendChild(parseMath(arr[i], latex));
     } else {
-      var arri = (linebreaks ? arr[i].split("\n\n") : [arr[i]]);
-      newFrag.appendChild(createElementXHTML("span")
-      .appendChild(document.createTextNode(arri[0])));
+      var arri = linebreaks ? arr[i].split("\n\n") : [arr[i]];
+      newFrag.appendChild(createElementXHTML("span").appendChild(document.createTextNode(arri[0])));
       for (var j = 1; j < arri.length; j++) {
         newFrag.appendChild(createElementXHTML("p"));
-        newFrag.appendChild(createElementXHTML("span")
-        .appendChild(document.createTextNode(arri[j])));
+        newFrag.appendChild(createElementXHTML("span").appendChild(document.createTextNode(arri[j])));
       }
     }
     expr = !expr;
@@ -1812,7 +1782,7 @@ function processNodeR(n, linebreaks, latex) {
         str = str.replace(/\s*\r\n/g, " ");
         if (latex) {
           // DELIMITERS:
-          mtch = (str.indexOf("$") == -1 ? false : true);
+          mtch = str.indexOf("$") == -1 ? false : true;
           str = str.replace(/([^\\])\$/g, "$1 $");
           str = str.replace(/^\$/, " $"); // in case \$ at start of string
           arr = str.split(" $");
@@ -1887,14 +1857,7 @@ function AMprocessNode(n, linebreaks, spanclassAM) {
     try {
       st = n.innerHTML; // look for AMdelimiter on page
     } catch (err) {}
-    if (
-      st == null ||
-      /amath\b|\\begin{a?math}/i.test(st) ||
-      st.indexOf(AMdelimiter1 + " ") !== -1 ||
-      st.slice(-1) === AMdelimiter1 ||
-      st.indexOf(AMdelimiter1 + "<") !== -1 ||
-      st.indexOf(AMdelimiter1 + "\n") !== -1
-    ) {
+    if (st == null || /amath\b|\\begin{a?math}/i.test(st) || st.indexOf(AMdelimiter1 + " ") !== -1 || st.slice(-1) === AMdelimiter1 || st.indexOf(AMdelimiter1 + "<") !== -1 || st.indexOf(AMdelimiter1 + "\n") !== -1) {
       processNodeR(n, linebreaks, false);
     }
   }
@@ -1950,11 +1913,11 @@ asciimath.translate = translate;
 /////////////////////////////////////////////////////////////////
 
 /******************************************************************
- *
- *   The previous section is ASCIIMathML.js Version 2.2
- *   (c) Peter Jipsen, used with permission.
- *
- ******************************************************************/
+   *
+   *   The previous section is ASCIIMathML.js Version 2.2
+   *   (c) Peter Jipsen, used with permission.
+   *
+   ******************************************************************/
 
 showasciiformulaonhover = false;
 mathfontfamily = "";

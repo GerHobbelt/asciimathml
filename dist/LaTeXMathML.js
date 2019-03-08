@@ -54,15 +54,15 @@ as your (X)HTML page.
 
 (function () {
 // was "red":
-var mathcolor = "";	             // change it to "" (to inherit) or any other color
+var mathcolor = ""; // change it to "" (to inherit) or any other color
 // was "serif":
-var mathfontfamily = "";         // change to "" to inherit (works in IE)
-                                 // or another family (e.g. "arial")
-var checkForMathML = true;       // check if browser can display MathML
-var notifyIfNoMathML = true;     // display note if no MathML capability
-var alertIfNoMathML = false;     // show alert box if no MathML capability
-var translateOnLoad = true;      // set to `false` to do call translators from js, 
-                                 // set to `true` to autotranslate
+var mathfontfamily = ""; // change to "" to inherit (works in IE)
+// or another family (e.g. "arial")
+var checkForMathML = true; // check if browser can display MathML
+var notifyIfNoMathML = true; // display note if no MathML capability
+var alertIfNoMathML = false; // show alert box if no MathML capability
+var translateOnLoad = true; // set to `false` to do call translators from js,
+// set to `true` to autotranslate
 var showasciiformulaonhover = true; // helps students learn ASCIIMath
 /*
 // Commented out by DRW -- not now used -- see DELIMITERS (twice) near the end
@@ -78,13 +78,10 @@ var doubleblankmathdelimiter = false; // if true,  x+1  is equal to `x+1`
 //var separatetokens;           // has been removed (email me if this is a problem)
 */
 
-var isIE = (navigator.appName.slice(0,9) === "Microsoft");
+var isIE = navigator.appName.slice(0, 9) === "Microsoft";
 
 if (document.getElementById == null) {
-  alert(
-    "This webpage requires a recent browser such as\n" +
-    "Mozilla/Netscape 7+ or Internet Explorer 6+MathPlayer"
-  );
+  alert("This webpage requires a recent browser such as\n" + "Mozilla/Netscape 7+ or Internet Explorer 6+MathPlayer");
 }
 
 // all further global variables start with "LM"
@@ -818,7 +815,7 @@ function LMgetSymbol(str) {
   if ("0" <= st && st <= "9") {
     tagst = "mn";
   } else {
-    tagst = (("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi");
+    tagst = ("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi";
   }
   /*
 // Commented out by DRW (not fully understood, but probably to do with
@@ -887,8 +884,7 @@ function LMparseSexpr(str) {
         str = LMremoveCharsAndBlanks(str, symbol.input.length);
       }
     }
-    return [LMcreateMmlNode(symbol.tag,
-			document.createTextNode(symbol.output)),str,symbol.tag];
+    return [LMcreateMmlNode(symbol.tag, document.createTextNode(symbol.output)), str, symbol.tag];
 
   case CONST:
     var output = symbol.output;
@@ -977,9 +973,7 @@ function LMparseSexpr(str) {
       }
     }
     result = LMparseExpr(str, true, false);
-    if (symbol == null || 
-      (typeof symbol.invisible === "boolean" && symbol.invisible)
-    ) {
+    if (symbol == null || (typeof symbol.invisible === "boolean" && symbol.invisible)) {
       node = LMcreateMmlNode("mrow", result[0]);
     } else {
       node = LMcreateMmlNode("mo", document.createTextNode(symbol.output));
@@ -1242,21 +1236,21 @@ function LMparseIexpr(str) {
       sym2 = LMgetSymbol(str);
       tag = null; // no space between x^2 and a following sin, cos, etc.
       // This is for \underbrace and \overbrace
-      underover = (sym1.ttype === UNDEROVER || node.ttype === UNDEROVER);
+      underover = sym1.ttype === UNDEROVER || node.ttype === UNDEROVER;
       //underover = (sym1.ttype === UNDEROVER);
       if (symbol.input == "_" && sym2.input == "^") {
         str = LMremoveCharsAndBlanks(str, sym2.input.length);
         var res2 = LMparseSexpr(str);
         str = res2[1];
         tag = res2[2]; // leave space between x_1^2 and a following sin etc.
-        node = LMcreateMmlNode((underover ? "munderover" : "msubsup"), node);
+        node = LMcreateMmlNode(underover ? "munderover" : "msubsup", node);
         node.appendChild(result[0]);
         node.appendChild(res2[0]);
       } else if (symbol.input == "_") {
-        node = LMcreateMmlNode((underover ? "munder" : "msub"), node);
+        node = LMcreateMmlNode(underover ? "munder" : "msub", node);
         node.appendChild(result[0]);
       } else {
-        node = LMcreateMmlNode((underover ? "mover" : "msup"), node);
+        node = LMcreateMmlNode(underover ? "mover" : "msup", node);
         node.appendChild(result[0]);
       }
       node = LMcreateMmlNode("mrow", node); // so sum does not stretch
@@ -1289,9 +1283,7 @@ function LMparseExpr(str, rightbracket, matrix) {
     tag = result[2];
     symbol = LMgetSymbol(str);
     if (node != undefined) {
-      if ((tag == "mn" || tag == "mi") && symbol != null && 
-        typeof symbol.func === "boolean" && symbol.func
-      ) {
+      if ((tag == "mn" || tag == "mi") && symbol != null && typeof symbol.func === "boolean" && symbol.func) {
         // Add space before \sin in 2\sin x or x\sin x
         var space = LMcreateElementMathML("mspace");
         space.setAttribute("width", "0.167em");
@@ -1300,9 +1292,7 @@ function LMparseExpr(str, rightbracket, matrix) {
       }
       newFrag.appendChild(node);
     }
-  } while (symbol.ttype != RIGHTBRACKET && 
-    symbol != null && symbol.output != ""
-  );
+  } while (symbol.ttype != RIGHTBRACKET && symbol != null && symbol.output != "");
   tag = null;
   if (symbol.ttype == RIGHTBRACKET) {
     if (symbol.input == "\\right") {
@@ -1320,14 +1310,7 @@ function LMparseExpr(str, rightbracket, matrix) {
       str = LMremoveCharsAndBlanks(str, symbol.input.length);
     } // ready to return
     var len = newFrag.childNodes.length;
-    if (
-      matrix &&
-      len > 0 &&
-      newFrag.childNodes[len - 1].nodeName == "mrow" &&
-      len > 1 &&
-      newFrag.childNodes[len - 2].nodeName == "mo" &&
-      newFrag.childNodes[len - 2].firstChild.nodeValue == "&"
-    ) {
+    if (matrix && len > 0 && newFrag.childNodes[len - 1].nodeName == "mrow" && len > 1 && newFrag.childNodes[len - 2].nodeName == "mo" && newFrag.childNodes[len - 2].firstChild.nodeValue == "&") {
       //matrix
       var pos = []; // positions of ampersands
       var m = newFrag.childNodes.length;
@@ -1409,13 +1392,11 @@ function LMstrarr2docFrag(arr, linebreaks) {
     if (expr) {
       newFrag.appendChild(LMparseMath(arr[i]));
     } else {
-      var arri = (linebreaks ? arr[i].split("\n\n") : [arr[i]]);
-      newFrag.appendChild(LMcreateElementXHTML("span")
-      .appendChild(document.createTextNode(arri[0])));
+      var arri = linebreaks ? arr[i].split("\n\n") : [arr[i]];
+      newFrag.appendChild(LMcreateElementXHTML("span").appendChild(document.createTextNode(arri[0])));
       for (var j = 1; j < arri.length; j++) {
         newFrag.appendChild(LMcreateElementXHTML("p"));
-        newFrag.appendChild(LMcreateElementXHTML("span")
-        .appendChild(document.createTextNode(arri[j])));
+        newFrag.appendChild(LMcreateElementXHTML("span").appendChild(document.createTextNode(arri[j])));
       }
     }
     expr = !expr;
@@ -1445,7 +1426,7 @@ function LMprocessNodeR(n, linebreaks) {
         str = str.replace(/\x20+/g, " ");
         str = str.replace(/\s*\r\n/g, " ");
         // DELIMITERS:
-        mtch = (str.indexOf("$") == -1 ? false : true);
+        mtch = str.indexOf("$") == -1 ? false : true;
         str = str.replace(/([^\\])\$/g, "$1 $");
         str = str.replace(/^\$/, " $"); // in case \$ at start of string
         arr = str.split(" $");
@@ -1459,11 +1440,7 @@ function LMprocessNodeR(n, linebreaks) {
             LMnoMathML = nd != null;
             if (LMnoMathML && notifyIfNoMathML) {
               if (alertIfNoMathML) {
-                alert(
-                  "To view the ASCIIMathML notation use Internet Explorer 6 +\n" +
-                  "MathPlayer (free from www.dessci.com)\n" +
-                  "or Firefox/Mozilla/Netscape"
-                );
+                alert("To view the ASCIIMathML notation use Internet Explorer 6 +\n" + "MathPlayer (free from www.dessci.com)\n" + "or Firefox/Mozilla/Netscape");
               } else {
                 LMbody.insertBefore(nd, LMbody.childNodes[0]);
               }
