@@ -1,5 +1,5 @@
 module.exports = {
-  "arrowParens": "avoid",
+  "arrowParens": "always",
 
   "trailingComma": "es5",
   //"trailingComma": "all",
@@ -10,5 +10,5 @@ module.exports = {
   "bracketSpacing": true,
   "jsxBracketSameLine": false,
   "tabWidth": 2,
-  "printWidth": 160,
+  "printWidth": 250,
 };
