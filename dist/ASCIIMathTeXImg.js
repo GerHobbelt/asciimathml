@@ -1,5 +1,6 @@
 /*
 ASCIIMathTeXImg.js
+==================
 Based on ASCIIMathML, Version 1.4.7 Aug 30, 2005, (c) Peter Jipsen http://www.chapman.edu/~jipsen
 Modified with TeX conversion for IMG rendering Sept 6, 2006 (c) David Lippman http://www.pierce.ctc.edu/dlippman
   Updated to match ver 2.2 Mar 3, 2014
@@ -30,8 +31,9 @@ var noMathRender = false;
 
 (function () {
 var config = {
-  translateOnLoad: true, //true to autotranslate
-  mathcolor: "", // defaults to back, or specify any other color
+  mathcolor: "", // defaults to black, or specify any other color
+  translateOnLoad: true, // set to `false` to do call translators from js,
+  // set to `true` to autotranslate
   displaystyle: true, // puts limits above and below large operators
   showasciiformulaonhover: true, // helps students learn ASCIIMath
   decimalsign: ".", // change to "," if you like, beware of `(1,2)`!
@@ -117,7 +119,7 @@ var AMsymbols = [
   { input: "zeta", tag: "mi", output: "\u03B6", tex: null, ttype: CONST },
 
   //binary operation symbols
-  { input: "*", tag: "mo", output: "\u22C5", tex: "cdot ", ttype: CONST },
+  { input: "*", tag: "mo", output: "\u22C5", tex: "cdot", ttype: CONST },
   { input: "**", tag: "mo", output: "\u2217", tex: "ast", ttype: CONST },
   { input: "***", tag: "mo", output: "\u22C6", tex: "star", ttype: CONST },
   { input: "//", tag: "mo", output: "/", tex: "/", ttype: CONST, val: true, notexcopy: true },
@@ -332,17 +334,17 @@ var AMsymbols = [
   AMsup,
   { input: "cancel", tag: "menclose", output: "cancel", tex: null, ttype: UNARY },
   { input: "Sqrt", tag: "msqrt", output: "sqrt", tex: null, ttype: UNARY },
-  { input: "hat", tag: "mover", output: "\u005E", tex: null, ttype: UNARY },
-  { input: "bar", tag: "mover", output: "\u00AF", tex: "overline", ttype: UNARY },
-  { input: "vec", tag: "mover", output: "\u2192", tex: null, ttype: UNARY },
-  { input: "tilde", tag: "mover", output: "~", tex: null, ttype: UNARY },
-  { input: "dot", tag: "mover", output: ".", tex: null, ttype: UNARY },
-  { input: "ddot", tag: "mover", output: "..", tex: null, ttype: UNARY },
-  { input: "overarc", tag: "mover", output: "\u23DC", tex: "stackrel{\\frown}", notexcopy: true, ttype: UNARY },
-  { input: "overparen", tag: "mover", output: "\u23DC", tex: "stackrel{\\frown}", notexcopy: true, ttype: UNARY },
-  { input: "ul", tag: "munder", output: "\u0332", tex: "underline", ttype: UNARY },
-  { input: "ubrace", tag: "munder", output: "\u23DF", tex: "underbrace", ttype: UNARY },
-  { input: "obrace", tag: "mover", output: "\u23DE", tex: "overbrace", ttype: UNARY },
+  { input: "hat", tag: "mover", output: "\u005E", tex: null, ttype: UNARY, acc: true },
+  { input: "bar", tag: "mover", output: "\u00AF", tex: "overline", ttype: UNARY, acc: true },
+  { input: "vec", tag: "mover", output: "\u2192", tex: null, ttype: UNARY, acc: true },
+  { input: "tilde", tag: "mover", output: "~", tex: null, ttype: UNARY, acc: true },
+  { input: "dot", tag: "mover", output: ".", tex: null, ttype: UNARY, acc: true },
+  { input: "ddot", tag: "mover", output: "..", tex: null, ttype: UNARY, acc: true },
+  { input: "overarc", tag: "mover", output: "\u23DC", tex: "stackrel{\\frown}", notexcopy: true, ttype: UNARY, acc: true },
+  { input: "overparen", tag: "mover", output: "\u23DC", tex: "stackrel{\\frown}", notexcopy: true, ttype: UNARY, acc: true },
+  { input: "ul", tag: "munder", output: "\u0332", tex: "underline", ttype: UNARY, acc: true },
+  { input: "ubrace", tag: "munder", output: "\u23DF", tex: "underbrace", ttype: UNARY, acc: true },
+  { input: "obrace", tag: "mover", output: "\u23DE", tex: "overbrace", ttype: UNARY, acc: true },
   AMtext,
   AMmbox,
   AMvar,
@@ -410,9 +412,9 @@ function newsymbol(symbolobj) {
 }
 
 function AMremoveCharsAndBlanks(str, n) {
-  //remove n characters and any following blanks
+  // remove n characters and any following blanks
   var st;
-  if (str.charAt(n) == "\\" && str.charAt(n + 1) != "\\" && str.charAt(n + 1) != " ") {
+  if (str.charAt(n) === "\\" && str.charAt(n + 1) !== "\\" && str.charAt(n + 1) !== " ") {
     st = str.slice(n + 1);
   } else {
     st = str.slice(n);
@@ -479,7 +481,7 @@ function AMgetSymbol(str) {
     st = str.slice(k, k + 1);
     k++;
   }
-  if (st == config.decimalsign) {
+  if (st === config.decimalsign) {
     st = str.slice(k, k + 1);
     if ("0" <= st && st <= "9") {
       integ = false;
@@ -498,7 +500,7 @@ function AMgetSymbol(str) {
     st = str.slice(0, 1); //take 1 character
     tagst = ("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi";
   }
-  if (st == "-" && AMpreviousSymbol == INFIX) {
+  if (st === "-" && AMpreviousSymbol === INFIX) {
     // trick "/" into recognizing "-" on second parse
     AMcurrentSymbol = INFIX;
     return { input: st, tag: tagst, output: st, ttype: UNARY, func: true, val: true };
@@ -568,8 +570,8 @@ function AMTgetTeXsymbol(symb) {
     pre = "\\";
   }
   if (symb.tex == null) {
-    //can't remember why this was here.  Breaks /delta /Delta to removed
-    //return (pre+(pre==''?symb.input:symb.input.toLowerCase()));
+    // can't remember why this was here.  Breaks /delta /Delta to removed
+    //return (pre + (pre === '' ? symb.input : symb.input.toLowerCase()));
     return pre + symb.input;
   } else {
     return pre + symb.tex;
@@ -733,9 +735,9 @@ function AMTparseSexpr(str) {
       return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
     }
     result2[0] = AMTremoveBrackets(result2[0]);
-    if (symbol.input == "color") {
+    if (symbol.input === "color") {
       newFrag = "{\\color{" + result[0].replace(/[\{\}]/g, "") + "}" + result2[0] + "}";
-    } else if (symbol.input == "root") {
+    } else if (symbol.input === "root") {
       newFrag = "{\\sqrt[" + result[0] + "]{" + result2[0] + "}}";
     } else {
       newFrag = "{" + AMTgetTeXsymbol(symbol) + "{" + result[0] + "}{" + result2[0] + "}}";
@@ -762,7 +764,7 @@ function AMTparseSexpr(str) {
     AMnestingDepth--;
     st = "";
     st = result[0].charAt(result[0].length - 1);
-    if (st == "|" && str.charAt(0) !== ",") {
+    if (st === "|" && str.charAt(0) !== ",") {
       // its an absolute value subterm
       node = "{\\left|" + result[0] + "}";
       return [node, result[1]];
@@ -1051,7 +1053,8 @@ function AMparseMath(str) {
   snode.appendChild(node); //chg
   return snode;
 }
-//alias to align with wFallback function
+
+// alias to align with wFallback function
 function AMTparseMath(str) {
   return AMparseMath(str);
 }
@@ -1179,12 +1182,46 @@ var AMbody;
 var AMtranslated = false;
 var AMnoMathML = true;
 
+function generic() {
+  if (config.translateOnLoad) {
+    translate();
+  }
+}
+
+// setup onload function
+if (typeof window.addEventListener !== "undefined") {
+  //.. gecko, safari, konqueror and standard
+  window.addEventListener("load", generic, false);
+} else if (typeof document.addEventListener !== "undefined") {
+  //.. opera 7
+  document.addEventListener("load", generic, false);
+} else if (typeof window.attachEvent !== "undefined") {
+  //.. win/ie
+  window.attachEvent("onload", generic);
+} else {
+  //.. mac/ie5 and anything else that gets this far
+  //if there's an existing onload function
+  if (typeof window.onload === "function") {
+    //store it
+    var existing = onload;
+    //add new onload handler
+    window.onload = function () {
+      //call existing onload function
+      existing();
+      //call generic onload function
+      generic();
+    };
+  } else {
+    window.onload = generic;
+  }
+}
 AMinitSymbols();
 
-module.exports.AMTconfig = config;
-module.exports.AMprocessNode = AMprocessNode;
-module.exports.AMparseMath = AMparseMath;
-module.exports.AMTparseMath = AMparseMath;
-module.exports.AMTparseAMtoTeX = AMTparseAMtoTeX;
-module.exports.translate = translate;
+// expose some functions to outside
+window.AMTconfig = config;
+window.AMprocessNode = AMprocessNode;
+window.AMparseMath = AMparseMath;
+window.AMTparseMath = AMparseMath;
+window.AMTparseAMtoTeX = AMTparseAMtoTeX;
+window.translate = translate;
 })();

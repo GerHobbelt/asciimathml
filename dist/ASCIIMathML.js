@@ -1272,7 +1272,7 @@ var AMparseSexpr = function AMparseSexpr(str) {
     if (result[0].lastChild != null) {
       st = result[0].lastChild.firstChild.nodeValue;
     }
-    if (st == "|" && str.charAt(0) !== ",") {
+    if (st === "|" && str.charAt(0) !== ",") {
       // its an absolute value subterm
       node = createMmlNode("mo", document.createTextNode(symbol.output));
       node = createMmlNode("mrow", node);
@@ -1326,7 +1326,7 @@ var AMparseIexpr = function AMparseIexpr(str) {
     //if (symbol.input === "/") {
     //  AMremoveBrackets(node);
     //}
-    underover = sym1.ttype == UNDEROVER || sym1.ttype == UNARYUNDEROVER;
+    underover = sym1.ttype === UNDEROVER || sym1.ttype === UNARYUNDEROVER;
     if (symbol.input === "_") {
       sym2 = AMgetSymbol(str);
       if (sym2.input == "^") {
@@ -1342,7 +1342,7 @@ var AMparseIexpr = function AMparseIexpr(str) {
         node = createMmlNode(underover ? "munder" : "msub", node);
         node.appendChild(result[0]);
       }
-    } else if (symbol.input == "^" && underover) {
+    } else if (symbol.input === "^" && underover) {
       node = createMmlNode("mover", node);
       node.appendChild(result[0]);
     } else {
@@ -1420,11 +1420,11 @@ var AMparseExpr = function AMparseExpr(str, rightbracket) {
       newFrag.appendChild(node);
     }
 
-    if (symbol.input == "-" && node.nodeName != "mo") {
+    if (symbol.input === "-" && node.nodeName !== "mo") {
       str = AMremoveCharsAndBlanks(str, symbol.input.length);
       newFrag.appendChild(createMmlNode(symbol.tag, document.createTextNode("-")));
       result = AMparseExpr(str, rightbracket);
-      if (result[0] !== null) {
+      if (result[0] != null) {
         newFrag.appendChild(result[0]);
       }
       str = result[1];
@@ -1544,7 +1544,7 @@ var parseMath = function parseMath(str, latex) {
   str = str.replace(/&lt;/g, "<");
   frag = AMparseExpr(str.replace(/^\s+/g, ""), false)[0];
   node = createMmlNode("mstyle", frag);
-  if (mathcolor != "") {
+  if (mathcolor !== "") {
     node.setAttribute("mathcolor", mathcolor);
   }
   if (mathfontsize != "") {
