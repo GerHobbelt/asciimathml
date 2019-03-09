@@ -24,26 +24,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-var AMTcgiloc = "";     // set to the URL of your LaTex renderer
-var mathbg = "";        // ='dark'?
+var AMTcgiloc = ""; // set to the URL of your LaTex renderer
+var mathbg = ""; // ='dark'?
 var noMathRender = false;
 
 (function () {
 var config = {
-  translateOnLoad: true,      //true to autotranslate
-  mathcolor: "",              // defaults to back, or specify any other color
-  displaystyle: true,         // puts limits above and below large operators
+  translateOnLoad: true, //true to autotranslate
+  mathcolor: "", // defaults to back, or specify any other color
+  displaystyle: true, // puts limits above and below large operators
   showasciiformulaonhover: true, // helps students learn ASCIIMath
-  decimalsign: ".",           // change to "," if you like, beware of `(1,2)`!
-  AMdelimiter1: "§",          // can use other characters
-  AMescape1: "\\\\§",         // can use other characters
-  AMusedelimiter2: true,      // whether to use second delimiter below
-  AMdelimiter2: "$", 
-  AMescape2: "\\\\\\$", 
+  decimalsign: ".", // change to "," if you like, beware of `(1,2)`!
+  AMdelimiter1: "§", // can use other characters
+  AMescape1: "\\\\§", // can use other characters
+  AMusedelimiter2: true, // whether to use second delimiter below
+  AMdelimiter2: "$",
+  AMescape2: "\\\\\\$",
   AMdelimiter2regexp: "\\$",
-  AMdocumentId: "wikitext",   // PmWiki element containing math (default=body)
-  doubleblankmathdelimiter: false // if true,  x+1  is equal to `x+1`
-};                                // for IE this works only in <!--   -->
+  AMdocumentId: "wikitext", // PmWiki element containing math (default=body)
+  doubleblankmathdelimiter: false, // if true,  x+1  is equal to `x+1`
+}; // for IE this works only in <!--   -->
 
 var CONST = 0;
 var UNARY = 1;
@@ -377,10 +377,7 @@ function AMinitSymbols() {
   var i;
   var symlen = AMsymbols.length;
   for (i = 0; i < symlen; i++) {
-    if (AMsymbols[i].tex && 
-      !(typeof AMsymbols[i].notexcopy === "boolean" && 
-        AMsymbols[i].notexcopy)
-    ) {
+    if (AMsymbols[i].tex && !(typeof AMsymbols[i].notexcopy === "boolean" && AMsymbols[i].notexcopy)) {
       AMsymbols.push({
         input: AMsymbols[i].tex,
         tag: AMsymbols[i].tag,
@@ -499,7 +496,7 @@ function AMgetSymbol(str) {
   } else {
     k = 2;
     st = str.slice(0, 1); //take 1 character
-    tagst = (("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi");
+    tagst = ("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi";
   }
   if (st == "-" && AMpreviousSymbol == INFIX) {
     // trick "/" into recognizing "-" on second parse
@@ -687,7 +684,7 @@ function AMTparseSexpr(str) {
     } else if (space) {
       newFrag = "\\,";
     }
-      newFrag += (italic ? '\\mathit{'+st+'}' : '\\text{'+st+'}');
+    newFrag += italic ? "\\mathit{" + st + "}" : "\\text{" + st + "}";
     if (st.charAt(st.length - 1) == " ") {
       newFrag += "\\ ";
     }
@@ -703,10 +700,7 @@ function AMTparseSexpr(str) {
     if (typeof symbol.func === "boolean" && symbol.func) {
       // functions hack
       st = str.charAt(0);
-      if (st === "^" || st === "_" || st === "/" || st === "|" || st === "," || 
-          st === "'" || st === '+' || st === '-' ||
-          (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
-      ) {
+      if (st === "^" || st === "_" || st === "/" || st === "|" || st === "," || st === "'" || st === "+" || st === "-" || (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")) {
         return [AMTgetTeXsymbol(symbol), str];
       } else {
         node = AMTgetTeXsymbol(symbol) + "{" + result[0] + "}";
@@ -832,9 +826,7 @@ function AMTparseIexpr(str) {
     }
     if (typeof sym1.func !== "undefined" && sym1.func) {
       sym2 = AMgetSymbol(str);
-      if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET &&
-          (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
-      ) {
+      if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET && (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)) {
         result = AMTparseIexpr(str);
         node = "{" + node + result[0] + "}";
         str = result[1];
@@ -878,14 +870,7 @@ function AMTparseExpr(str, rightbracket) {
     } else if (node != undefined) {
       newFrag += node;
     }
-  } while (((
-        symbol.ttype !== RIGHTBRACKET && 
-        (symbol.ttype !== LEFTRIGHT || rightbracket)
-      ) || 
-      AMnestingDepth === 0
-    ) && 
-    symbol != null && symbol.output !== ""
-  );
+  } while (((symbol.ttype !== RIGHTBRACKET && (symbol.ttype !== LEFTRIGHT || rightbracket)) || AMnestingDepth === 0) && symbol != null && symbol.output !== "");
   if (symbol.ttype === RIGHTBRACKET || symbol.ttype === LEFTRIGHT) {
     //if (AMnestingDepth > 0) {
     //  AMnestingDepth--;
@@ -896,10 +881,7 @@ function AMTparseExpr(str, rightbracket) {
       var right = newFrag.charAt(len - 2);
       if (right == ")" || right == "]") {
         var left = newFrag.charAt(6);
-        if (
-          (left === "(" && right === ")" && symbol.output !== "}") ||
-          (left === "[" && right === "]")
-        ) {
+        if ((left === "(" && right === ")" && symbol.output !== "}") || (left === "[" && right === "]")) {
           var mxout = "";
           var pos = new Array(); //position of commas
           pos.push(0);
@@ -1081,13 +1063,11 @@ function AMstrarr2docFrag(arr, linebreaks) {
     if (expr) {
       newFrag.appendChild(AMparseMath(arr[i]));
     } else {
-      var arri = (linebreaks ? arr[i].split("\n\n") : [arr[i]]);
-      newFrag.appendChild(document.createElement("span")
-      .appendChild(document.createTextNode(arri[0])));
+      var arri = linebreaks ? arr[i].split("\n\n") : [arr[i]];
+      newFrag.appendChild(document.createElement("span").appendChild(document.createTextNode(arri[0])));
       for (var j = 1; j < arri.length; j++) {
         newFrag.appendChild(document.createElement("p"));
-        newFrag.appendChild(document.createElement("span")
-        .appendChild(document.createTextNode(arri[j])));
+        newFrag.appendChild(document.createElement("span").appendChild(document.createTextNode(arri[j])));
       }
     }
     expr = !expr;
@@ -1191,7 +1171,7 @@ function translate(spanclassAM) {
     AMtranslated = true;
     var body = document.getElementsByTagName("body")[0];
     var processN = document.getElementById(config.AMdocumentId);
-    AMprocessNode((processN != null ? processN : body), false, spanclassAM);
+    AMprocessNode(processN != null ? processN : body, false, spanclassAM);
   }
 }
 
