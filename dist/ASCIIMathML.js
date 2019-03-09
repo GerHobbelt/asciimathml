@@ -114,7 +114,7 @@ function init() {
     alert("This webpage requires a recent browser such as Mozilla Firefox");
     return null;
   }
-  if (checkForMathML && (msg = checkMathML())) {
+  if (config.checkForMathML && (msg = checkMathML())) {
     warnings.push(msg);
   }
   if (warnings.length > 0) {
@@ -150,9 +150,9 @@ function checkMathML() {
   }
 
   //noMathML = true; // uncomment to check
-  if (noMathML && notifyIfNoMathML) {
+  if (noMathML && config.notifyIfNoMathML) {
     var msg = "To view the ASCIIMathML notation use Internet Explorer + MathPlayer or Mozilla Firefox 2.0 or later.";
-    if (alertIfNoMathML) {
+    if (config.alertIfNoMathML) {
       alert(msg);
     } else {
       return msg;
