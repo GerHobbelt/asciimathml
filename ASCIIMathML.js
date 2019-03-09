@@ -788,7 +788,7 @@ var AMsymbols = [
   { input: "cancel", tag: "menclose", output: "cancel", tex: null, ttype: UNARY },
   AMquote,
   AMvar,
-  AMunit,
+  //AMunit,
   { input: "bb", tag: "mstyle", atname: "mathvariant", atval: "bold", output: "bb", tex: null, ttype: UNARY },
   { input: "mathbf", tag: "mstyle", atname: "mathvariant", atval: "bold", output: "mathbf", tex: null, ttype: UNARY },
   { input: "sf", tag: "mstyle", atname: "mathvariant", atval: "sans-serif", output: "sf", tex: null, ttype: UNARY },
@@ -962,12 +962,10 @@ var AMgetSymbol = function AMgetSymbol(str) {
     st = str.slice(0, 1); //take 1 character
     tagst = (("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi");
   }
-  //  // disabled code chunk:
-  //  if (st === "-" && AMpreviousSymbol === INFIX) {
-  //    // trick "/" into recognizing "-" on second parse
-  //    AMcurrentSymbol = INFIX;
-  //    return { input: st, tag: tagst, output: st, ttype: UNARY, func: true, val: true };
-  //  }
+  if (st === "-" && AMpreviousSymbol === INFIX) {
+    AMcurrentSymbol = INFIX; //trick "/" into recognizing "-" on second parse
+    return { input: st, tag: tagst, output: st, ttype: UNARY, func: true };
+  }
   return { input: st, tag: tagst, output: st, ttype: CONST };
 };
 
@@ -1024,16 +1022,6 @@ var AMparseSexpr = function AMparseSexpr(str) {
 
   if (symbol == null || (symbol.ttype === RIGHTBRACKET && AMnestingDepth > 0)) {
     return [null, str];
-  }
-  if (symbol.input === "-") {
-    str = AMremoveCharsAndBlanks(str, symbol.input.length);
-    result = AMparseSexpr(str, true);
-    if (result[0] == null) {
-      return [createMmlNode("mo", document.createTextNode(symbol.output)), str];
-    }
-    node = createMmlNode("mrow", createMmlNode("mo", document.createTextNode(symbol.output)));
-    node.appendChild(result[0]);
-    return [node, result[1]];
   }
   if (symbol.ttype == DEFINITION) {
     str = symbol.output + AMremoveCharsAndBlanks(str, symbol.input.length);

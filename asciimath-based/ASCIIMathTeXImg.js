@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-var AMTcgiloc = "";     // set to the URL of your LaTex renderer
+//var AMTcgiloc = '';			//set to the URL of your LaTex renderer
 var mathbg = "";        // ='dark'?
 var noMathRender = false;
 
@@ -37,8 +37,8 @@ var config = {
   displaystyle: true,         // puts limits above and below large operators
   showasciiformulaonhover: true, // helps students learn ASCIIMath
   decimalsign: ".",           // change to "," if you like, beware of `(1,2)`!
-  AMdelimiter1: "§",          // can use other characters
-  AMescape1: "\\\\§",         // can use other characters
+  AMdelimiter1: "`",          // can use other characters
+  AMescape1: "\\\\`",         // can use other characters
   AMusedelimiter2: true,      // whether to use second delimiter below
   AMdelimiter2: "$", 
   AMescape2: "\\\\\\$", 
@@ -74,7 +74,7 @@ var AMsup = { input: "^", tag: "msup", output: "^", tex: null, ttype: INFIX };
 var AMtext = { input: "text", tag: "mtext", output: "text", tex: null, ttype: TEXT };
 var AMmbox = { input: "mbox", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 var AMvar = { input: "#", tag: "mtext", output: "mathit", tex: null, ttype: TEXT };
-var AMunit = { input: "`", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
+var AMunit = { input: "§", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 var AMquote = { input: '"', tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 
 var AMsymbols = [
@@ -675,7 +675,7 @@ function AMTparseSexpr(str) {
       italic = true;
       space = false;
     } else if (symbol === AMunit) {
-      i = str.slice(1).indexOf("`") + 1;
+      i = str.slice(AMunit.input.length).indexOf(AMunit.input) + 1;
       italic = false;
       space = true;
     } else {
@@ -701,7 +701,7 @@ function AMTparseSexpr(str) {
     str = AMremoveCharsAndBlanks(str, symbol.input.length);
     result = AMTparseSexpr(str);
     if (result[0] == null) {
-      return [AMTgetTeXsymbol(symbol), str];
+      return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
     }
     if (typeof symbol.func === "boolean" && symbol.func) {
       // functions hack
@@ -711,9 +711,9 @@ function AMTparseSexpr(str) {
         st === "'" || st === "+" || st === "-" || 
         (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
       ) {
-        return [AMTgetTeXsymbol(symbol), str];
+        return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
       } else {
-        node = AMTgetTeXsymbol(symbol) + "{" + result[0] + "}";
+        node = "{" + AMTgetTeXsymbol(symbol) + "{" + result[0] + "}}";
         return [node, result[1]];
       }
     }
@@ -721,13 +721,14 @@ function AMTparseSexpr(str) {
     if (symbol.input === "sqrt") {
       // sqrt
       return ["\\sqrt{" + result[0] + "}", result[1]];
+    } else if (typeof symbol.rewriteleftright !== "undefined") {
+      // abs, floor, ceil
+      return ["{\\left" + symbol.rewriteleftright[0] + result[0] + "\\right" + symbol.rewriteleftright[1] + "}", result[1]];
     } else if (symbol.input === "cancel") {
       // cancel
       return ["\\cancel{" + result[0] + "}", result[1]];
-    } else if (typeof symbol.rewriteleftright !== "undefined") {
-      // abs, floor, ceil
-      return ["\\left" + symbol.rewriteleftright[0] + result[0] + "\\right" + symbol.rewriteleftright[1] + "", result[1]];
     } else {
+      // font change command, accent, etc.
       return [AMTgetTeXsymbol(symbol) + "{" + result[0] + "}", result[1]];
     }
 

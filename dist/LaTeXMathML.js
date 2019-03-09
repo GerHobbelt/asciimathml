@@ -53,22 +53,25 @@ as your (X)HTML page.
 */
 
 (function () {
-var translateOnLoad = true; // true to autotranslate
-var checkForMathML = true; // check if browser can display MathML
-var notifyIfNoMathML = true; // display note if no MathML capability
-var alertIfNoMathML = false; // show alert box if no MathML capability
 // was "red":
 var mathcolor = ""; // change it to "" (to inherit) or any other color
 // was "serif":
 var mathfontfamily = ""; // change to "" to inherit (works in IE)
 // or another family (e.g. "arial")
+var checkForMathML = true; // check if browser can display MathML
+var notifyIfNoMathML = true; // display note if no MathML capability
+var alertIfNoMathML = false; // show alert box if no MathML capability
+var translateOnLoad = true; // set to `false` to do call translators from js,
+// set to `true` to autotranslate
 var showasciiformulaonhover = true; // helps students learn ASCIIMath
 /*
 // Commented out by DRW -- not now used -- see DELIMITERS (twice) near the end
-var displaystyle = false;      // puts limits above and below large operators
-var decimalsign = ".";         // change to "," if you like, beware of `(1,2)`!
-var LMdelimiter1 = "`";        // can use other characters
-var LMescape1 = "\\\\`";       // can use other characters
+var displaystyle = false;        // puts limits above and below large operators
+var decimalsign = ".";           // if "," then when writing lists or matrices put
+                                 // a space after the "," like `(1, 2)` not `(1,2)`
+var decimalsignAlternative = ",";
+var LMdelimiter1 = "`";          // can use other characters
+var LMescape1 = "\\\\`";         // can use other characters
 var LMdelimiter2 = "$";
 var LMescape2 = "\\\\\\$";
 var LMdelimiter2regexp = "\\$";
