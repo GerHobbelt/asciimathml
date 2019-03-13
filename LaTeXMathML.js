@@ -718,6 +718,10 @@ var LMsymbols = [
 function compareNames(s1, s2) {
   if (s1.input > s2.input) {
     return 1;
+  } else if (s1.input < s2.input) {
+    return -1;
+  } else if (s1.tex) {
+    return 1;
   } else {
     return -1;
   }
@@ -768,7 +772,7 @@ function LMremoveCharsAndBlanks(str, n) {
 function LMposition(arr, str, n) {
   // return position >=n where str appears or would be inserted
   // assumes arr is sorted
-  if (n == 0) {
+  if (n === 0) {
     var h;
     var m;
     n = -1;
@@ -789,20 +793,20 @@ function LMposition(arr, str, n) {
 }
 
 function LMgetSymbol(str) {
-  //return maximal initial substring of str that appears in names
-  //return null if there is none
-  var k = 0; //new pos
-  var j = 0; //old pos
-  var mk; //match pos
+  // return maximal initial substring of str that appears in names
+  // return null if there is none
+  var k = 0; // new pos
+  var j = 0; // old pos
+  var mk; // match pos
   var st;
   var tagst;
   var match = "";
   var more = true;
   for (var i = 1; i <= str.length && more; i++) {
-    st = str.slice(0, i); //initial substring of length i
+    st = str.slice(0, i); // initial substring of length i
     j = k;
     k = LMposition(LMnames, st, j);
-    if (k < LMnames.length && str.slice(0, LMnames[k].length) == LMnames[k]) {
+    if (k < LMnames.length && str.slice(0, LMnames[k].length) === LMnames[k]) {
       match = LMnames[k];
       mk = k;
       i = match.length;
@@ -810,7 +814,7 @@ function LMgetSymbol(str) {
     more = k < LMnames.length && str.slice(0, LMnames[k].length) >= LMnames[k];
   }
   LMpreviousSymbol = LMcurrentSymbol;
-  if (match != "") {
+  if (match !== "") {
     LMcurrentSymbol = LMsymbols[mk].ttype;
     return LMsymbols[mk];
   }
@@ -851,14 +855,16 @@ var LMpreviousSymbol;
 var LMcurrentSymbol;
 
 function LMparseSexpr(str) {
-  //parses str and returns [node,tailstr,(node)tag]
+  // parses str and returns [node,(node)tailstr,tag]
+  //
+  // WARNING: the returned `node` item MAY be NULL.
   var symbol;
   var node;
   var result;
   var result2;
   var i;
   var st;
-  // var rightvert = false,
+  // var rightvert = false;
   var newFrag = document.createDocumentFragment();
   str = LMremoveCharsAndBlanks(str, 0);
   symbol = LMgetSymbol(str); //either a token or a bracket or empty
@@ -1059,7 +1065,7 @@ function LMparseSexpr(str) {
     } else {
       i = 0;
     }
-    if (i == -1) {
+    if (i === -1) {
       i = str.length;
     }
     st = str.slice(1, i);
@@ -1082,7 +1088,7 @@ function LMparseSexpr(str) {
     if (result[0] == null) {
       return [LMcreateMmlNode(symbol.tag, document.createTextNode(symbol.output)), str];
     }
-    if (typeof symbol.func === "boolean" && symbol.func) {
+    if (symbol.func) {
       // functions hack
       st = str.charAt(0);
       //  if (st === "^" || st === "_" || st === "/" || st === "|" || st === ",") {
@@ -1114,7 +1120,7 @@ function LMparseSexpr(str) {
       } else {
         return [LMcreateMmlNode(symbol.tag, result[0]), result[1], symbol.tag];
       }
-    } else if (typeof symbol.acc === "boolean" && symbol.acc) {
+    } else if (symbol.acc) {
       // accent
       node = LMcreateMmlNode(symbol.tag, result[0]);
       var output = symbol.output;
@@ -1217,6 +1223,7 @@ function LMparseSexpr(str) {
 }
 
 function LMparseIexpr(str) {
+  // parses str and returns [nodestr,tailstr]
   var symbol;
   var sym1;
   var sym2;
@@ -1591,6 +1598,6 @@ if (typeof window.addEventListener !== "undefined") {
   }
 }
 
-//expose LatexToMathML function
+// expose LatexToMathML function
 window.LatexToMathML = LatexToMathML;
 })();

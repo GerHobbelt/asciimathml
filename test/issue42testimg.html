@@ -4,27 +4,80 @@
 <title>ASCIIMathML test suite</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script type="text/javascript">
-var AMTcgiloc = 'http://www.imathas.com/cgi-bin/mimetex.cgi';
+var asciimath = {
+  config: {
+    AMTcgiloc: 'http://www.imathas.com/cgi-bin/mimetex.cgi'
+  }
+};
 </script>
 <script type="text/javascript" src="../asciimath-based/ASCIIMathTeXImg.js"></script>
+<style>
+#menu, #title, #subtitle, #author, .display { text-align: center; }
+body    { 
+    margin: 6em 10%;
+}
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-bottom: 1px grey solid;
+    padding-bottom: 1em;
+}
+header {
+    position: fixed;
+    margin-top: 0;
+    padding: 0;
+    width: 80%;
+    border-bottom: 3px #b1b1b1 solid;
+    background: white;
+    top: 0;
+}
+header p {
+    margin: 0;
+    padding: 0.2em 2em 0.3em;
+    text-align: center;
+}
+</style>
 </head>
 <body>
-`[(1,2,3,|,4),(5,6,7, |,8)]` <br/>
-`[(1,2,3, | ,4,5),(5,6,7, | ,8,9)]` <br/>
-`[(1,|,2,3,4),(5,|,6,7,8)]` <br/>
-`[(1,|,3,|,4),(5,|,7,|,8)]` <br/>
-Absolute value in matrix:<br/>
-`[(2,|x|,5),(3,|y|,4)]` <br/>
-`[(1,|,2,|x|,5),(3,|,4,|y|,7)]` <br/>
-These are for testing weird/bad input:<br/>
-`[(1,2,3,|,4),(5,6,7,8,9)]` <br/>
-`[(1,2,3,|,4),(5,6,7,8)]` <br/>
-`[(1,2,3,4,5),(5,6,7,|,9)]` <br/>
-`[(1,2,3,4),(5,6,7,|,9)]` <br/>
-`[(1,2,3,|),(5,6,7,|)]` <br/>
-These are testing other uses of |:<br/>
-`|x/2+3|,|x-4/5|`<br/>
-`int_2^4 2x dx = x^2|_2^4`<br/>
+
+<header>
+    <p><a href="toc.html">Overview of all test pages</a></p>
+</header>
+
+<h1> ASCIImathML: Test Page </h1>
+
+<p>
+`[(1,2,3,|,4),(5,6,7, |,8)]` 
+<p>
+`[(1,2,3, | ,4,5),(5,6,7, | ,8,9)]` 
+<p>
+`[(1,|,2,3,4),(5,|,6,7,8)]` 
+<p>
+`[(1,|,3,|,4),(5,|,7,|,8)]` 
+<p>
+Absolute value in matrix:
+<p>
+`[(2,|x|,5),(3,|y|,4)]` 
+<p>
+`[(1,|,2,|x|,5),(3,|,4,|y|,7)]` 
+<p>
+These are for testing weird/bad input:
+<p>
+`[(1,2,3,|,4),(5,6,7,8,9)]` 
+<p>
+`[(1,2,3,|,4),(5,6,7,8)]` 
+<p>
+`[(1,2,3,4,5),(5,6,7,|,9)]` 
+<p>
+`[(1,2,3,4),(5,6,7,|,9)]` 
+<p>
+`[(1,2,3,|),(5,6,7,|)]` 
+<p>
+These are testing other uses of |:
+<p>
+`|x/2+3|,|x-4/5|`
+<p>
+`int_2^4 2x dx = x^2|_2^4`
 
 </body>
 </html>

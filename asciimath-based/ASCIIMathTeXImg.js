@@ -47,7 +47,8 @@ var config = {
   showasciiformulaonhover: true, // helps students learn ASCIIMath
   decimalsign: ".",              // if "," then when writing lists or matrices put
                                  // a space after the "," like `(1, 2)` not `(1,2)`
-  decimalsignAlternative: ",",
+  decimalsignAlternative: ".",   // if "," then when writing lists or matrices put
+                                 // a space after the "," like `(1, 2)` not `(1,2)`
   AMdelimiter1: "`",             // can use other characters
   AMescape1: "\\\\`",            // can use other characters
   AMusedelimiter2: true,         // whether to use second delimiter below
@@ -133,7 +134,7 @@ function init() {
   var warnings = new Array();
   if (document.getElementById == null) {
     alert("This webpage requires a recent browser such as Mozilla Firefox");
-    return null;
+    return false;
   }
   if (config.checkForMathML) {
     msg = checkMathML();
@@ -562,15 +563,22 @@ function initSymbols() {
   for (i = 0; i < symlen; i++) {
     if (
       AMsymbols[i].tex &&
-      AMsymbols[i].notexcopy !== true
+      !AMsymbols[i].notexcopy
     ) {
       AMsymbols.push({
         input: AMsymbols[i].tex,
         tag: AMsymbols[i].tag,
         output: AMsymbols[i].output,
         ttype: AMsymbols[i].ttype,
+        atname: AMsymbols[i].atname,
+        atval: AMsymbols[i].atval,
+        tex: AMsymbols[i].tex,
+        rewriteleftright: AMsymbols[i].rewriteleftright,
         acc: AMsymbols[i].acc || false,
+        val: AMsymbols[i].val || false,
+        func: AMsymbols[i].func || false,
         tietoprev: AMsymbols[i].tietoprev || false,
+        notexcopy: true,
       });
     }
   }
@@ -634,8 +642,6 @@ function refreshSymbols() {
     return true;
   }
 
-  AMnames = [];
-  AMsymbols.sort(compareNames);
   for (i = 0; i < AMsymbols.length; i++) {
     var key = 'K' + AMsymbols[i].input;
     if (hashes[key]) {
@@ -644,13 +650,25 @@ function refreshSymbols() {
       // collision:
       if (!same(AMsymbols[i], hashes[key])) {
         collisions.push([AMsymbols[i], hashes[key]]);
+      } else {
+        // remove dupe in the list:
+        AMsymbols[i] = null;    
       }
     } else {
       hashes[key] = AMsymbols[i];
     }
+  }
+  AMsymbols = AMsymbols.filter(function (s) {
+    return !!s;  // remove the duplicates
+  });
+  
+  AMsymbols.sort(compareNames);
+  // construct the AMnames symbol lookup index table after sorting:
+  AMnames = [];
+  for (i = 0; i < AMsymbols.length; i++) {
     AMnames[i] = AMsymbols[i].input;
   }
-
+  
   if (collisions.length) {
     var msg = "ASCIImath: the symbol table has these colliding entries:\n";
     var lst = [];
@@ -698,8 +716,8 @@ function AMposition(arr, str, n) {
     return h;
   } else {
     for (var i = n; i < arr.length && arr[i] < str; i++) {}
+    return i; // i=arr.length || arr[i]>=str
   }
-  return i; // i=arr.length || arr[i]>=str
 }
 
 function AMgetSymbol(str) {
@@ -752,6 +770,7 @@ function AMgetSymbol(str) {
         input: insym,
         output: outsym,
         ttype: AMsymbols[mk].ttype,
+        tex: AMsymbols[mk].tex,
         tietoprev: AMsymbols[mk].tietoprev,
       };
     }
@@ -849,7 +868,7 @@ var AMcurrentSymbol;
 
 function AMTgetTeXsymbol(symb) {
   var pre;
-  if (typeof symb.val === "boolean" && symb.val) {
+  if (symb.val) {
     pre = "";
   } else {
     pre = "\\";
@@ -864,7 +883,9 @@ function AMTgetTeXsymbol(symb) {
 }
 
 function AMparseSexpr(str) {
-  //parses str and returns [node,tailstr]
+  // parses str and returns [node,tailstr]
+  //
+  // WARNING: the returned `node` item MAY be NULL.
   var symbol;
   var node;
   var result;
@@ -923,7 +944,6 @@ function AMparseSexpr(str) {
         node = "{" + AMTgetTeXsymbol(symbol) + result[0] + "}";
       }
     } else {
-      debugger;
       if (symbol.invisible) {
         node = "{\\left." + result[0] + "}";
       } else {
@@ -986,7 +1006,7 @@ function AMparseSexpr(str) {
     if (result[0] == null) {
       return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
     }
-    if (typeof symbol.func === "boolean" && symbol.func) {
+    if (symbol.func) {
       // functions hack
       st = str.charAt(0);
       if (
@@ -1012,7 +1032,7 @@ function AMparseSexpr(str) {
     } else if (symbol.input === "cancel") {
       // cancel
       return ["\\cancel{" + result[0] + "}", result[1]];
-    } else if (typeof symbol.acc === "boolean" && symbol.acc) {
+    } else if (symbol.acc) {
       // accent
       return [AMTgetTeXsymbol(symbol) + "{" + result[0] + "}", result[1]];
     } else {
@@ -1029,6 +1049,7 @@ function AMparseSexpr(str) {
     result[0] = AMremoveBrackets(result[0]);
     var result2 = AMparseSexpr(result[1]);
     if (result2[0] == null) {
+      debugger;
       return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
     }
     result2[0] = AMremoveBrackets(result2[0]);
@@ -1059,7 +1080,6 @@ function AMparseSexpr(str) {
     str = AMremoveCharsAndBlanks(str, symbol.input.length);
     result = AMparseExpr(str, false);
     AMnestingDepth--;
-    st = "";
     st = result[0].charAt(result[0].length - 1);
     if (st === "|" && str.charAt(0) !== ",") {
       // it's an absolute value subterm
@@ -1078,6 +1098,7 @@ function AMparseSexpr(str) {
 }
 
 function AMparseIexpr(str) {
+  // parses str and returns [nodestr,tailstr]
   var symbol;
   var sym1;
   var sym2;
@@ -1087,6 +1108,10 @@ function AMparseIexpr(str) {
   str = AMremoveCharsAndBlanks(str, 0);
   sym1 = AMgetSymbol(str);
   result = AMparseSexpr(str);
+  if (result[0] == null) {
+    // show box in place of missing argument
+    result[0] = "{}";
+  }
   node = result[0];
   str = result[1];
   symbol = AMgetSymbol(str);
@@ -1109,6 +1134,10 @@ function AMparseIexpr(str) {
       if (sym2.input === "^") {
         str = AMremoveCharsAndBlanks(str, sym2.input.length);
         var res2 = AMparseSexpr(str);
+        if (res2[0] == null) {
+          // show box in place of missing argument
+          res2[0] = "{}";
+        }
         res2[0] = AMremoveBrackets(res2[0]);
         str = res2[1];
         node = "{" + node;
@@ -1128,14 +1157,19 @@ function AMparseIexpr(str) {
   }
   if (symbol.tietoprev) {
     // connect in any primes
-    node = createMmlNode(symbol.tietoprev, node);
+    //node = node + "\\" + symbol.tex;
     result = AMparseSexpr(str);
+    if (result[0] == null) {
+      // show box in place of missing argument
+      result[0] = "{}";
+    }
     str = result[1];
-    node.appendChild(result[0]);
+    // symbol.tietoprev === "msup" ==>
+    node = node + "^{" + result[0] + "}";
     sym2 = AMgetSymbol(str);
     dofunc = true;
   }
-  if (dofunc && typeof sym1.func !== "undefined" && sym1.func) {
+  if (dofunc && sym1.func) {
     if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET &&
         sym2.input !== '+' && sym2.input !== '-' &&
         (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
@@ -1166,13 +1200,7 @@ function AMparseExpr(str, rightbracket) {
     if (symbol.ttype === INFIX && symbol.input === "/") {
       str = AMremoveCharsAndBlanks(str, symbol.input.length);
       result = AMparseIexpr(str);
-
-      if (result[0] == null) {
-        // show box in place of missing argument
-        result[0] = "{}";
-      } else {
-        result[0] = AMremoveBrackets(result[0]);
-      }
+      result[0] = AMremoveBrackets(result[0]);
       str = result[1];
       node = AMremoveBrackets(node);
       node = "\\frac" + "{" + node + "}";
@@ -1180,6 +1208,11 @@ function AMparseExpr(str, rightbracket) {
       newFrag += node;
       symbol = AMgetSymbol(str);
     } else if (typeof node !== "undefined") {
+      // this stricter conditional helped us find bugs in the parse routines
+      // as it caused MJ to output literal "null" in rare circumstances.
+      // That bug has been fixed but we keep this strict check, rather than
+      // unifying it to the `node != null` check used everywhere else in the
+      // code, so that we can catch regressions earlier and easier.
       newFrag += node;
     }
   } while (((
@@ -1305,7 +1338,6 @@ function AMparseExpr(str, rightbracket) {
     }
 
     str = AMremoveCharsAndBlanks(str, symbol.input.length);
-      debugger;
     if (!symbol.invisible) {
       node = "\\right" + AMTgetTeXsymbol(symbol);
       newFrag += node;
@@ -1464,33 +1496,55 @@ function processNodeR(n, linebreaks) {
         str = str.replace(/\s*\r\n/g, " ");
         mtch = false;
         if (config.AMusedelimiter2) {
-          str = str.replace(new RegExp(config.AMescape2, "g"), function (st) {
+          str = str.replace(new RegExp(config.AMescape2, "g"), function () {
             mtch = true;
             return "AMescape2";
           });
         }
-        str = str.replace(new RegExp(config.AMescape1, "g"), function (st) {
+        str = str.replace(new RegExp(config.AMescape1, "g"), function () {
           mtch = true;
           return "AMescape1";
         });
         if (config.AMusedelimiter2) {
           str = str.replace(new RegExp(config.AMdelimiter2regexp, "g"), config.AMdelimiter1);
         }
-        arr = str.split(config.AMdelimiter1);
+          str = str.replace(/\\?end{?a?math}?/i, function () {
+            config.automathrecognize = false;
+            mtch = true;
+            return "";
+          });
+          str = str.replace(/amath\b|\\begin{a?math}/i, function () {
+            config.automathrecognize = true;
+            mtch = true;
+            return "";
+          });
+          arr = str.split(config.AMdelimiter1);
+          if (config.automathrecognize) {
+            for (i = 0; i < arr.length; i++) {
+              if (i % 2 === 0) {
+                arr[i] = AMautomathrec(arr[i]);
+              }
+            }
+          }
+          str = arr.join(config.AMdelimiter1);
+          arr = str.split(config.AMdelimiter1);
 
           // this is a problem ************
-        for (i = 0; i < arr.length; i++) {
-          if (config.AMusedelimiter2) {
-            arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2).replace(/AMescape1/g, config.AMdelimiter1);
-          } else {
+          for (i = 0; i < arr.length; i++) {
+            if (config.AMusedelimiter2) {
+              arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2)
+            }
             arr[i] = arr[i].replace(/AMescape1/g, config.AMdelimiter1);
           }
-        }
         if (arr.length > 1 || mtch) {
-          frg = strarr2docFrag(arr, n.nodeType === 8);
-          var len = frg.childNodes.length;
-          n.parentNode.replaceChild(frg, n);
-          return len - 1;
+          if (!noMathML) {
+            frg = strarr2docFrag(arr, n.nodeType === 8);
+            var len = frg.childNodes.length;
+            n.parentNode.replaceChild(frg, n);
+            return len - 1;
+          } else {
+            return 0;
+          }
         }
       }
     } else {
@@ -1520,8 +1574,12 @@ function AMprocessNode(n, linebreaks, spanclassAM) {
     } catch (err) {}
     if (
       st == null ||
-        st.indexOf(config.AMdelimiter1) !== -1
-        // || st.indexOf(config.AMdelimiter2) !== -1
+      /amath\b|\\begin{a?math}/i.test(st) ||
+      st.indexOf(config.AMdelimiter1 + " ") !== -1 ||
+      st.slice(-1) === config.AMdelimiter1 ||
+      //st.slice(-1) === config.AMdelimiter2 ||
+      st.indexOf(config.AMdelimiter1 + "<") !== -1 ||
+      st.indexOf(config.AMdelimiter1 + "\n") !== -1
     ) {
       processNodeR(n, linebreaks);
     }
@@ -1572,6 +1630,7 @@ asciimath.AMprocessNode = AMprocessNode;
 asciimath.parseMath = parseMath;
 asciimath.AMTparseAMtoTeX = AMTparseAMtoTeX;
 asciimath.translate = translate;
+asciimath.init = init;
 
 return asciimath;
 })(asciimath);

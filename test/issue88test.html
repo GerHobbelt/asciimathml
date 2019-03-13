@@ -1,17 +1,15 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <title>ASCIIMathML test suite</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script type="text/javascript" src="../ASCIIMathML.js"></script>
-<style type="text/css">
+<style>
 #menu, #title, #subtitle, #author, .display { text-align: center; }
-body    { font-family: Arial; margin:10%; }
-p,table { font-family: Times; }
-table   { border-collapse:collapse; }
-td, th  { border:1px solid black; padding:5px; text-align:center; }
-img     { border: 0; }
+body    { 
+    font-family: Arial, sans-serif; 
+    margin: 6em 10%;
+}
 .red {
   color: #D91E18;
   background-color: #F1A9A0;
@@ -30,9 +28,33 @@ img     { border: 0; }
     50% {transform: scale(1)}
     100% {transform: scale(2)}
 }
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-bottom: 1px grey solid;
+    padding-bottom: 1em;
+}
+header {
+    position: fixed;
+    margin-top: 0;
+    padding: 0;
+    width: 80%;
+    border-bottom: 3px #b1b1b1 solid;
+    background: white;
+    top: 0;
+}
+header p {
+    margin: 0;
+    padding: 0.2em 2em 0.3em;
+    text-align: center;
+}
 </style>
 </head>
 <body>
+
+<header>
+    <p><a href="toc.html">Overview of all test pages</a></p>
+</header>
 
 <h1> Testing Classes and Id's </h1>
 
@@ -42,28 +64,48 @@ img     { border: 0; }
   expression using only css. Try mousing over the red text :D
 </p>
 
-`id(velocity)(vec v (t)) = (d vec R(t)) / dt = lim_{Delta t->0} class(red)(vec R(t + Delta t )- vec R(t)) / (Delta t)` <br/>
+<p>
+`id(velocity)(vec v (t)) = (d vec R(t)) / dt = lim_{Delta t->0} class(red)(vec R(t + Delta t )- vec R(t)) / (Delta t)` 
 
 <p>
-Escaping quotes inside text:<br/>
-`3+"hi there"+5` <br/>
-`3+"hi there"+5"whee"-4` <br/>
-`3+"hi \"there\"" - 4` <br/>
+Escaping quotes inside text:
+<p>
+`3+"hi there"+5` 
+<p>
+`3+"hi there"+5"whee"-4` 
+<p>
+`3+"hi \"there\"" - 4` 
+<p>
 `3+text(hi "there")+4`
-Unterminated quotes:<br/>
-`3+"hi there+5` <br/>
-`3+"hi \"there\" - 4` <br/>
-Double prime:<br/>
-`f''(x)+sin'(x)+sin^2(x)`<br/>
-`3+f'(x)+f''+f^2+f_2+(x+2)'(x)+3^f'`<br/>
-Higher primes:<br/>
-`p'(x)+p''(x)+p'''(x)+p''''(x)+p'''''(x)`<br/>
-`f'(x)+f''(x)+f'''(x)+f''''(x)+f'''''(x)`<br/>
-`g''`<br/>
-`fprimeprime(x)`<br/>
-Function:<br/>
-`f^2(x)/3 + f(x)/3 + f'(x)/3+sin'(x)/2 + k'(x)/3+k^2(x)/3`<br/>
-`f'/3 - f'+2/3 + f'+/3 + f_2'(x)/3 + f_2'/3 + f_2'+/3 + f'+3`<br/>
+<p>
+Unterminated quotes:
+<p>
+`3+"hi there+5` 
+<p>
+`3+"hi \"there\" - 4` 
+<p>
+Double prime:
+<p>
+`f''(x)+sin'(x)+sin^2(x)`
+<p>
+`3+f'(x)+f''+f^2+f_2+(x+2)'(x)+3^f'`
+<p>
+Higher primes:
+<p>
+`p'(x)+p''(x)+p'''(x)+p''''(x)+p'''''(x)`
+<p>
+`f'(x)+f''(x)+f'''(x)+f''''(x)+f'''''(x)`
+<p>
+`g''`
+<p>
+`fprimeprime(x)`
+<p>
+Function:
+<p>
+`f^2(x)/3 + f(x)/3 + f'(x)/3+sin'(x)/2 + k'(x)/3+k^2(x)/3`
+<p>
+`f'/3 - f'+2/3 + f'+/3 + f_2'(x)/3 + f_2'/3 + f_2'+/3 + f'+3`
+<p>
 `sin+3 - sin^2+3 `
 
 </body>

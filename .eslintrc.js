@@ -29,7 +29,7 @@ module.exports = {
         "indent": ["warn", 2, {
             SwitchCase: 0,
             VariableDeclarator: { "var": 2, "let": 2, "const": 3 },
-            outerIIFEBody: 0,
+            outerIIFEBody: 1,
             MemberExpression: 0,
             FunctionDeclaration: {
                 "body": 1, 
@@ -91,5 +91,7 @@ module.exports = {
 
         "func-call-spacing": ["warn", "never"],
         "multiline-ternary": ["warn", "always-multiline"],
+
+        "no-debugger": 2,
     },
 };
