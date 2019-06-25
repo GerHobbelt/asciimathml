@@ -4,7 +4,29 @@ ASCIIMathTeXImg.js
 Based on ASCIIMathML, Version 1.4.7 Aug 30, 2005, (c) Peter Jipsen http://www.chapman.edu/~jipsen
 Modified with TeX conversion for IMG rendering Sept 6, 2006 (c) David Lippman http://www.pierce.ctc.edu/dlippman
   Updated to match ver 2.2 Mar 3, 2014
-  Latest at https://github.com/mathjax/asciimathml
+
+This file contains JavaScript functions to convert ASCII math notation
+and (some) LaTeX to image-rendered LaTeX. The conversion is done while the
+HTML page loads and should work with all browsers while the (local or remote)
+mimeTeX service is accessible and available to render the produced LaTeX to IMG.
+
+Just add the next lines to your HTML page with this file in the same folder:
+
+    <script type="text/javascript">
+    var asciimath = {
+      config: {
+        AMTcgiloc: 'http://www.imathas.com/cgi-bin/mimetex.cgi',
+        // displaystyle: true,
+        // debug: true,
+      },
+    };
+    </script>
+    <script type="text/javascript" src="ASCIIMathTeXImg.js"></script>
+
+Latest version at https://github.com/mathjax/asciimathml
+If you use it on a webpage, please send the URL to jipsen@chapman.edu
+
+Copyright (c) 2014 Peter Jipsen and other ASCIIMathML.js contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +85,16 @@ var config = {
 // set up global var and mix config object:
 asciimath = asciimath || {};
 if (asciimath.config) {
+  // special callback: this is invoked before any ASCIImath data is set up;
+  // not even the configuration settings have been initialized!
+  if (typeof asciimath.config.preInitConfig === "function") {
+    var data = {
+      defaultConfig: config,
+      asciimath: asciimath,
+    };
+    asciimath.config.preInitConfig(data);      
+  }
+    
   // also track which options the user specified which we don't know about:
   // help diagnose user config coding errors.
   var unused = [];
@@ -73,6 +105,9 @@ if (asciimath.config) {
         config[key] = asciimath.config[key];
       }
     } else {
+      // Old versions use the "decimal" option, which will get reported as "unused",
+      // requiring those old codes to be upgraded. We no longer take that obsolete
+      // option into account. See issue 384.
       unused.push(key);
     }
   }
@@ -93,6 +128,10 @@ config = asciimath.config = config;
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+
+/////////////////////////////////////////////////
+// === ASCIIMATH->MATHJAX COMMENTED SECTION 1 ===
+/////////////////////////////////////////////////
 
 var noMathML = false;
 var translated = false;
@@ -153,10 +192,10 @@ function init() {
 }
 
 function checkMathML() {
-  var noMathML = false;
+  var noML = false;
 
-  //noMathML = true; // uncomment to check
-  if (noMathML && config.notifyIfNoMathML) {
+  //noML = true; // uncomment to check
+  if (noML && config.notifyIfNoMathML) {
     var msg = "To view the ASCIIMathML notation use Internet Explorer + MathPlayer or Mozilla Firefox 2.0 or later.";
     if (config.alertIfNoMathML) {
       alert(msg);
@@ -164,7 +203,7 @@ function checkMathML() {
     }
     return msg;
   }
-  return noMathML;
+  return noML;
 }
 
 function hideWarning() {
@@ -213,8 +252,14 @@ function translate(spanclassAM) {
   }
 }
 
+function createElementXHTML(t) {
+  return document.createElement(t);
+}
 
 
+/////////////////////////////////////////////////////
+// === END ASCIIMATH->MATHJAX COMMENTED SECTION 1 ===
+/////////////////////////////////////////////////////
 
 function newcommand(oldstr, newstr) {
   AMsymbols.push({ input: oldstr, tag: "mo", output: newstr, tex: null, ttype: DEFINITION });
@@ -226,8 +271,258 @@ function newsymbol(symbolobj) {
   refreshSymbols();
 }
 
+// character lists for Mozilla/Netscape fonts
+var AMcal = [
+  "\uD835\uDC9C",
+  "\u212C",
+  "\uD835\uDC9E",
+  "\uD835\uDC9F",
+  "\u2130",
+  "\u2131",
+  "\uD835\uDCA2",
+  "\u210B",
+  "\u2110",
+  "\uD835\uDCA5",
+  "\uD835\uDCA6",
+  "\u2112",
+  "\u2133",
+  "\uD835\uDCA9",
+  "\uD835\uDCAA",
+  "\uD835\uDCAB",
+  "\uD835\uDCAC",
+  "\u211B",
+  "\uD835\uDCAE",
+  "\uD835\uDCAF",
+  "\uD835\uDCB0",
+  "\uD835\uDCB1",
+  "\uD835\uDCB2",
+  "\uD835\uDCB3",
+  "\uD835\uDCB4",
+  "\uD835\uDCB5",
+  "\uD835\uDCB6",
+  "\uD835\uDCB7",
+  "\uD835\uDCB8",
+  "\uD835\uDCB9",
+  "\u212F",
+  "\uD835\uDCBB",
+  "\u210A",
+  "\uD835\uDCBD",
+  "\uD835\uDCBE",
+  "\uD835\uDCBF",
+  "\uD835\uDCC0",
+  "\uD835\uDCC1",
+  "\uD835\uDCC2",
+  "\uD835\uDCC3",
+  "\u2134",
+  "\uD835\uDCC5",
+  "\uD835\uDCC6",
+  "\uD835\uDCC7",
+  "\uD835\uDCC8",
+  "\uD835\uDCC9",
+  "\uD835\uDCCA",
+  "\uD835\uDCCB",
+  "\uD835\uDCCC",
+  "\uD835\uDCCD",
+  "\uD835\uDCCE",
+  "\uD835\uDCCF",
+];
 
+var AMfrk = [
+  "\uD835\uDD04",
+  "\uD835\uDD05",
+  "\u212D",
+  "\uD835\uDD07",
+  "\uD835\uDD08",
+  "\uD835\uDD09",
+  "\uD835\uDD0A",
+  "\u210C",
+  "\u2111",
+  "\uD835\uDD0D",
+  "\uD835\uDD0E",
+  "\uD835\uDD0F",
+  "\uD835\uDD10",
+  "\uD835\uDD11",
+  "\uD835\uDD12",
+  "\uD835\uDD13",
+  "\uD835\uDD14",
+  "\u211C",
+  "\uD835\uDD16",
+  "\uD835\uDD17",
+  "\uD835\uDD18",
+  "\uD835\uDD19",
+  "\uD835\uDD1A",
+  "\uD835\uDD1B",
+  "\uD835\uDD1C",
+  "\u2128",
+  "\uD835\uDD1E",
+  "\uD835\uDD1F",
+  "\uD835\uDD20",
+  "\uD835\uDD21",
+  "\uD835\uDD22",
+  "\uD835\uDD23",
+  "\uD835\uDD24",
+  "\uD835\uDD25",
+  "\uD835\uDD26",
+  "\uD835\uDD27",
+  "\uD835\uDD28",
+  "\uD835\uDD29",
+  "\uD835\uDD2A",
+  "\uD835\uDD2B",
+  "\uD835\uDD2C",
+  "\uD835\uDD2D",
+  "\uD835\uDD2E",
+  "\uD835\uDD2F",
+  "\uD835\uDD30",
+  "\uD835\uDD31",
+  "\uD835\uDD32",
+  "\uD835\uDD33",
+  "\uD835\uDD34",
+  "\uD835\uDD35",
+  "\uD835\uDD36",
+  "\uD835\uDD37",
+];
 
+var AMbbb = [
+  "\uD835\uDD38",
+  "\uD835\uDD39",
+  "\u2102",
+  "\uD835\uDD3B",
+  "\uD835\uDD3C",
+  "\uD835\uDD3D",
+  "\uD835\uDD3E",
+  "\u210D",
+  "\uD835\uDD40",
+  "\uD835\uDD41",
+  "\uD835\uDD42",
+  "\uD835\uDD43",
+  "\uD835\uDD44",
+  "\u2115",
+  "\uD835\uDD46",
+  "\u2119",
+  "\u211A",
+  "\u211D",
+  "\uD835\uDD4A",
+  "\uD835\uDD4B",
+  "\uD835\uDD4C",
+  "\uD835\uDD4D",
+  "\uD835\uDD4E",
+  "\uD835\uDD4F",
+  "\uD835\uDD50",
+  "\u2124",
+  "\uD835\uDD52",
+  "\uD835\uDD53",
+  "\uD835\uDD54",
+  "\uD835\uDD55",
+  "\uD835\uDD56",
+  "\uD835\uDD57",
+  "\uD835\uDD58",
+  "\uD835\uDD59",
+  "\uD835\uDD5A",
+  "\uD835\uDD5B",
+  "\uD835\uDD5C",
+  "\uD835\uDD5D",
+  "\uD835\uDD5E",
+  "\uD835\uDD5F",
+  "\uD835\uDD60",
+  "\uD835\uDD61",
+  "\uD835\uDD62",
+  "\uD835\uDD63",
+  "\uD835\uDD64",
+  "\uD835\uDD65",
+  "\uD835\uDD66",
+  "\uD835\uDD67",
+  "\uD835\uDD68",
+  "\uD835\uDD69",
+  "\uD835\uDD6A",
+  "\uD835\uDD6B",
+];
+
+/*
+var AMcal = [
+  0xef35,
+  0x212c,
+  0xef36,
+  0xef37,
+  0x2130,
+  0x2131,
+  0xef38,
+  0x210b,
+  0x2110,
+  0xef39,
+  0xef3a,
+  0x2112,
+  0x2133,
+  0xef3b,
+  0xef3c,
+  0xef3d,
+  0xef3e,
+  0x211b,
+  0xef3f,
+  0xef40,
+  0xef41,
+  0xef42,
+  0xef43,
+  0xef44,
+  0xef45,
+  0xef46,
+];
+var AMfrk = [
+  0xef5d,
+  0xef5e,
+  0x212d,
+  0xef5f,
+  0xef60,
+  0xef61,
+  0xef62,
+  0x210c,
+  0x2111,
+  0xef63,
+  0xef64,
+  0xef65,
+  0xef66,
+  0xef67,
+  0xef68,
+  0xef69,
+  0xef6a,
+  0x211c,
+  0xef6b,
+  0xef6c,
+  0xef6d,
+  0xef6e,
+  0xef6f,
+  0xef70,
+  0xef71,
+  0x2128,
+];
+var AMbbb = [
+  0xef8c,
+  0xef8d,
+  0x2102,
+  0xef8e,
+  0xef8f,
+  0xef90,
+  0xef91,
+  0x210d,
+  0xef92,
+  0xef93,
+  0xef94,
+  0xef95,
+  0xef96,
+  0x2115,
+  0xef97,
+  0x2119,
+  0x211a,
+  0x211d,
+  0xef98,
+  0xef99,
+  0xef9a,
+  0xef9b,
+  0xef9c,
+  0xef9d,
+  0xef9e,
+  0x2124,
+];
+*/
 
 var CONST = 0;
 var UNARY = 1;
@@ -248,7 +543,7 @@ var UNARYUNDEROVER = 15; // token types
 
 var AMquote = { input: '"', tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 var AMvar = { input: "#", tag: "mtext", output: "mathit", tex: null, ttype: TEXT };
-var AMunit = { input: "§", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
+var AMunit = { input: "`", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 
 var AMsymbols = [
   //some greek symbols
@@ -558,9 +853,20 @@ function compareNames(s1, s2) {
 var AMnames = []; // list of input symbols
 
 function initSymbols() {
-  var i;
+  // special callback: this is invoked before ASCIImath symbol data is set up
+  // but AFTER the ASCIImath configuration has been initialized completely.
+  // This is the time where userland code gets to edit the symbol tables...
+  if (typeof asciimath.config.preInitSymbols === "function") {
+    var data = {
+      AMsymbols: AMsymbols,
+      asciimath: asciimath,
+    };
+    asciimath.config.preInitSymbols(data);      
+    AMsymbols = data.AMsymbols;   // this table may have been patched by the preInitSymbols() callback.
+  }
+
   var symlen = AMsymbols.length;
-  for (i = 0; i < symlen; i++) {
+  for (var i = 0; i < symlen; i++) {
     if (
       AMsymbols[i].tex &&
       !AMsymbols[i].notexcopy
@@ -643,7 +949,7 @@ function refreshSymbols() {
   }
 
   for (i = 0; i < AMsymbols.length; i++) {
-    var key = 'K' + AMsymbols[i].input;
+    var key = "K" + AMsymbols[i].input;
     if (hashes[key]) {
       // check if objects are identical (which is okay as there are synonyms listed
       // in the AMSymbols[] table): if they are, we do not report this as a
@@ -1049,7 +1355,6 @@ function AMparseSexpr(str) {
     result[0] = AMremoveBrackets(result[0]);
     var result2 = AMparseSexpr(result[1]);
     if (result2[0] == null) {
-      debugger;
       return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
     }
     result2[0] = AMremoveBrackets(result2[0]);
@@ -1394,7 +1699,7 @@ function parseMath(str) {
     console.info("ASCIImath: ", input, " ==> ", texstring);
   }
 
-  var node = document.createElement("img");
+  var node = createElementXHTML("img");
   if (typeof encodeURIComponent === "function") {
     texstring = encodeURIComponent(texstring);
   } else {
@@ -1407,10 +1712,14 @@ function parseMath(str) {
     node.setAttribute("title", str.replace(/\s+/g, " "));
   }
 
-  var snode = document.createElement("span");
+  var snode = createElementXHTML("span");
   snode.appendChild(node); //chg
   return snode;
 }
+
+/////////////////////////////////////////////////
+// === ASCIIMATH->MATHJAX COMMENTED SECTION 2 ===
+/////////////////////////////////////////////////
 
 function strarr2docFrag(arr, linebreaks) {
   var newFrag = document.createDocumentFragment();
@@ -1420,11 +1729,11 @@ function strarr2docFrag(arr, linebreaks) {
       newFrag.appendChild(parseMath(arr[i]));
     } else {
       var arri = (linebreaks ? arr[i].split("\n\n") : [arr[i]]);
-      newFrag.appendChild(document.createElement("span")
+      newFrag.appendChild(createElementXHTML("span")
       .appendChild(document.createTextNode(arri[0])));
       for (var j = 1; j < arri.length; j++) {
-        newFrag.appendChild(document.createElement("p"));
-        newFrag.appendChild(document.createElement("span")
+        newFrag.appendChild(createElementXHTML("p"));
+        newFrag.appendChild(createElementXHTML("span")
         .appendChild(document.createTextNode(arri[j])));
       }
     }
@@ -1508,34 +1817,34 @@ function processNodeR(n, linebreaks) {
         if (config.AMusedelimiter2) {
           str = str.replace(new RegExp(config.AMdelimiter2regexp, "g"), config.AMdelimiter1);
         }
-          str = str.replace(/\\?end{?a?math}?/i, function () {
-            config.automathrecognize = false;
-            mtch = true;
-            return "";
-          });
-          str = str.replace(/amath\b|\\begin{a?math}/i, function () {
-            config.automathrecognize = true;
-            mtch = true;
-            return "";
-          });
-          arr = str.split(config.AMdelimiter1);
-          if (config.automathrecognize) {
-            for (i = 0; i < arr.length; i++) {
-              if (i % 2 === 0) {
-                arr[i] = AMautomathrec(arr[i]);
-              }
-            }
-          }
-          str = arr.join(config.AMdelimiter1);
-          arr = str.split(config.AMdelimiter1);
-
-          // this is a problem ************
+        str = str.replace(/\\?end{?a?math}?/i, function () {
+          config.automathrecognize = false;
+          mtch = true;
+          return "";
+        });
+        str = str.replace(/amath\b|\\begin{a?math}/i, function () {
+          config.automathrecognize = true;
+          mtch = true;
+          return "";
+        });
+        arr = str.split(config.AMdelimiter1);
+        if (config.automathrecognize) {
           for (i = 0; i < arr.length; i++) {
-            if (config.AMusedelimiter2) {
-              arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2)
+            if (i % 2 === 0) {
+              arr[i] = AMautomathrec(arr[i]);
             }
-            arr[i] = arr[i].replace(/AMescape1/g, config.AMdelimiter1);
           }
+        }
+        str = arr.join(config.AMdelimiter1);
+        arr = str.split(config.AMdelimiter1);
+
+        // this is a problem ************
+        for (i = 0; i < arr.length; i++) {
+          if (config.AMusedelimiter2) {
+            arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2);
+          }
+          arr[i] = arr[i].replace(/AMescape1/g, config.AMdelimiter1);
+        }
         if (arr.length > 1 || mtch) {
           if (!noMathML) {
             frg = strarr2docFrag(arr, n.nodeType === 8);
@@ -1623,6 +1932,11 @@ if (typeof window.addEventListener !== "undefined") {
   }
 }
 
+/////////////////////////////////////////////////////
+// === END ASCIIMATH->MATHJAX COMMENTED SECTION 2 ===
+/////////////////////////////////////////////////////
+
+
 // also expose some functions to outside
 asciimath.newcommand = newcommand;
 asciimath.newsymbol = newsymbol;
@@ -1634,3 +1948,8 @@ asciimath.init = init;
 
 return asciimath;
 })(asciimath);
+
+/////////////////////////////////////////////////////
+// ================ END ASCIIMATH ===================
+/////////////////////////////////////////////////////
+

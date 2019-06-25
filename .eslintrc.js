@@ -11,7 +11,7 @@ module.exports = {
         "node": true, 
     }, 
     "plugins": [
-        "no-mixed-operators"
+        //"no-mixed-operators"
     ],
     "parserOptions": { 
         "ecmaVersion": 5,
@@ -26,6 +26,10 @@ module.exports = {
     "rules": {
         "no-tabs": "warn",
         "quotes": ["warn", "double", "avoid-escape"],
+        "quote-props": ["warn", "consistent-as-needed", { 
+          "keywords": true, 
+          "numbers": false 
+        }],
         "indent": ["warn", 2, {
             SwitchCase: 0,
             VariableDeclarator: { "var": 2, "let": 2, "const": 3 },
