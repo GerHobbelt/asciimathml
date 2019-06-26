@@ -48,7 +48,7 @@ module.exports = {
             },
         }],
         // "max-len": "off",                 // disables line length check
-        "max-len": ["warn", {"code": 120, "ignoreUrls": true, "ignoreRegExpLiterals": true, "ignoreTemplateLiterals": true, "ignoreStrings": true }],
+        "max-len": ["warn", {"code": 250, "ignoreUrls": true, "ignoreRegExpLiterals": true, "ignoreTemplateLiterals": true, "ignoreStrings": true }],
         "curly": ["warn", "all"],        // wrap all if/else statements in {...} curly braces
         "eqeqeq": ["warn", "always", {"null": "ignore"}],
     
@@ -85,6 +85,7 @@ module.exports = {
             "nestedBinaryExpressions": false,
             "returnAssign": false,
             "conditionalAssign": false,
+            "enforceForArrowConditionals": false,
         }],
         // ["warn", "all",
         //     { 
@@ -97,9 +98,21 @@ module.exports = {
         //     }
         // ],
         
-        "no-mixed-operators": "off",
+        //"no-mixed-operators": "off",
         //"no-mixed-operators/no-mixed-operators": "warn",
-
+        "no-mixed-operators": [
+            "warn",
+            {
+                "groups": [
+                    ["+", "-", "*"], ["/", "%", "**"],
+                    ["&", "|", "^", "~", "<<", ">>", ">>>"],
+                    ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
+                    ["&&", "||"],
+                    ["in", "instanceof"]
+                ],
+                "allowSamePrecedence": true
+            }
+        ],
         "space-before-function-paren": ["warn", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
         "no-confusing-arrow": ["warn", {"allowParens": true}],
         "space-unary-ops": ["warn", {"words": true, "nonwords": false}],
@@ -110,8 +123,8 @@ module.exports = {
         "multiline-ternary": ["warn", "always-multiline"],
 
         "comma-dangle": ["warn", {
-            "arrays": "never",
-            "objects": "never",
+            "arrays": "always-multiline",
+            "objects": "always-multiline",
             "imports": "never",
             "exports": "never",
             "functions": "never"

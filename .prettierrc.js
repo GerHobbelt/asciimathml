@@ -2,6 +2,7 @@ module.exports = {
   "arrowParens": "always",
 
   "trailingComma": "es5",
+  //"trailingComma": "none",
   //"trailingComma": "all",
   
   "useTabs": false,
@@ -10,5 +11,5 @@ module.exports = {
   "bracketSpacing": true,
   "jsxBracketSameLine": false,
   "tabWidth": 2,
-  "printWidth": 120,
+  "printWidth": 250,
 };
