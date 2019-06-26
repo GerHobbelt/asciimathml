@@ -68,10 +68,12 @@ var asciimath = (function (asciimath) {
     translateASCIIMath: true,      // false to preserve `..`
     displaystyle: true,            // puts limits above and below large operators
     showasciiformulaonhover: true, // helps students learn ASCIIMath
+    useMathMLspacing: true,        // use MathML spacing rather than TeX spacing? (only used in conjunction with MathJax)
     decimalsign: ".",              // if "," then when writing lists or matrices put
                                    // a space after the "," like `(1, 2)` not `(1,2)`
     decimalsignAlternative: ".",   // if "," then when writing lists or matrices put
-                                   // a space after the "," like `(1, 2)` not `(1,2)`
+                                   // a space after the "," like `(1, 2)` not `(1,2)`.
+                                   // Added to support both . and ,
     AMdelimiter1: "`",             // can use other characters
     AMescape1: "\\\\`",            // can use other characters
     AMusedelimiter2: true,         // whether to use second delimiter below
@@ -80,7 +82,8 @@ var asciimath = (function (asciimath) {
     AMdelimiter2regexp: "\\$",
     AMdocumentId: "wikitext",      // PmWiki element containing math (default=body)
     doubleblankmathdelimiter: false, // if true,  x+1  is equal to `x+1`
-    fixphi: true,                  // false to return to legacy phi/varphi mapping
+    fixphi: true,                  // false to return to legacy phi/varphi mapping:
+                                   // switch phi and varphi unicode values
   };
 
   // set up global var and mix config object:
@@ -106,10 +109,19 @@ var asciimath = (function (asciimath) {
           config[key] = asciimath.config[key];
         }
       } else {
-        // Old versions use the "decimal" option, which will get reported as "unused",
-        // requiring those old codes to be upgraded. We no longer take that obsolete
-        // option into account. See issue 384.
-        unused.push(key);
+        switch (key) {
+        case "preInitConfig":
+        case "preInitSymbols":
+          // okay
+          break;
+
+        default:          
+          // Old versions use the "decimal" option, which will get reported as "unused",
+          // requiring those old codes to be upgraded. We no longer take that obsolete
+          // option into account. See issue 384.
+          unused.push(key);
+          break;
+        }
       }
     }
 
@@ -190,7 +202,7 @@ Please remove these from your 'asciimath.config' object.
   color: #ffc; 
   background: #c30
 }
-  `.trim();
+  `.trim());
 
   function init() {
     var msg;

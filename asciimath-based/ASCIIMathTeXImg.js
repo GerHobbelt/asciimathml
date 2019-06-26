@@ -51,11 +51,11 @@ THE SOFTWARE.
 var asciimath = (function (asciimath) {
   var config = {
     AMTcgiloc: "",                 // set to the URL of your LaTeX renderer, e.g.
-    // http://www.imathas.com/cgi-bin/mimetex.cgi
+                                   // http://www.imathas.com/cgi-bin/mimetex.cgi
     mathcolor: "",                 // defaults to black, or specify another color
     mathfontsize: "1em",           // change to e.g. 1.2em for larger math
     mathfontfamily: "serif",       // change to "" to inherit (works in IE)
-    // or another family (e.g. "arial")
+                                   // or another family (e.g. "arial")
     mathbg: "",                    // set to 'dark' when you have a dark background
     debug: false,                  // true: print some progress and diagnostics info lines in the console
     automathrecognize: false,      // writing "amath" on page makes this true
@@ -63,14 +63,16 @@ var asciimath = (function (asciimath) {
     notifyIfNoMathML: true,        // display note if no MathML capability
     alertIfNoMathML: false,        // show alert box if no MathML capability
     translateOnLoad: true,         // set to `false` to do call translators from js,
-    // set to `true` to autotranslate
+                                   // set to `true` to autotranslate
     translateASCIIMath: true,      // false to preserve `..`
     displaystyle: true,            // puts limits above and below large operators
     showasciiformulaonhover: true, // helps students learn ASCIIMath
+    useMathMLspacing: true,        // use MathML spacing rather than TeX spacing? (only used in conjunction with MathJax)
     decimalsign: ".",              // if "," then when writing lists or matrices put
-    // a space after the "," like `(1, 2)` not `(1,2)`
+                                   // a space after the "," like `(1, 2)` not `(1,2)`
     decimalsignAlternative: ".",   // if "," then when writing lists or matrices put
-    // a space after the "," like `(1, 2)` not `(1,2)`
+                                   // a space after the "," like `(1, 2)` not `(1,2)`.
+                                   // Added to support both . and ,
     AMdelimiter1: "`",             // can use other characters
     AMescape1: "\\\\`",            // can use other characters
     AMusedelimiter2: true,         // whether to use second delimiter below
@@ -79,22 +81,23 @@ var asciimath = (function (asciimath) {
     AMdelimiter2regexp: "\\$",
     AMdocumentId: "wikitext",      // PmWiki element containing math (default=body)
     doubleblankmathdelimiter: false, // if true,  x+1  is equal to `x+1`
-    fixphi: true,                  // false to return to legacy phi/varphi mapping
+    fixphi: true,                  // false to return to legacy phi/varphi mapping:
+                                   // switch phi and varphi unicode values
   };
 
   // set up global var and mix config object:
   asciimath = asciimath || {};
   if (asciimath.config) {
-  // special callback: this is invoked before any ASCIImath data is set up;
-  // not even the configuration settings have been initialized!
+    // special callback: this is invoked before any ASCIImath data is set up;
+    // not even the configuration settings have been initialized!
     if (typeof asciimath.config.preInitConfig === "function") {
       var data = {
         defaultConfig: config,
         asciimath: asciimath,
       };
-      asciimath.config.preInitConfig(data);      
+      asciimath.config.preInitConfig(data);
     }
-    
+
     // also track which options the user specified which we don't know about:
     // help diagnose user config coding errors.
     var unused = [];
@@ -105,18 +108,29 @@ var asciimath = (function (asciimath) {
           config[key] = asciimath.config[key];
         }
       } else {
-      // Old versions use the "decimal" option, which will get reported as "unused",
-      // requiring those old codes to be upgraded. We no longer take that obsolete
-      // option into account. See issue 384.
-        unused.push(key);
+        switch (key) {
+        case "preInitConfig":
+        case "preInitSymbols":
+          // okay
+          break;
+
+        default:          
+          // Old versions use the "decimal" option, which will get reported as "unused",
+          // requiring those old codes to be upgraded. We no longer take that obsolete
+          // option into account. See issue 384.
+          unused.push(key);
+          break;
+        }
       }
     }
 
     // report any unknown user option entries:
     if (unused.length) {
-      var msg = "ASCIImath: user config object contains these unknown options:\n" +
-        "  {" + unused.join(",") + "}\n" +
-        "Please remove these from your `asciimath.config` object.";
+      var msg = `
+ASCIImath: user config object contains these unknown options:
+  {${unused.join(",")}}
+Please remove these from your 'asciimath.config' object.
+        `.trim();
       if (typeof console !== "undefined" && typeof console.error === "function") {
         console.error(msg);
       } else {
@@ -142,7 +156,7 @@ var asciimath = (function (asciimath) {
     var id = "AMMLcustomStyleSheet";
     var n = document.getElementById(id);
     if (document.createStyleSheet) {
-    // Test for IE's non-standard createStyleSheet method
+      // Test for IE's non-standard createStyleSheet method
       if (n) {
         n.parentNode.removeChild(n);
       }
@@ -161,12 +175,27 @@ var asciimath = (function (asciimath) {
     }
   }
 
-  setStylesheet([
-    "#AMMLcloseDiv {font-size:0.8em; padding-top:1em; color:#014}",
-    "#AMMLwarningBox {position:absolute; width:100%; top:0; left:0;" +
-  " z-index:200; text-align:center; font-size:1em; font-weight:bold;" +
-  " padding:0.5em 0 0.5em 0; color:#ffc; background:#c30}",
-  ].join("\n"));
+  setStylesheet(`
+#AMMLcloseDiv {
+  font-size: 0.8em; 
+  padding-top: 1em; 
+  color: #014
+}
+
+#AMMLwarningBox {
+  position: absolute; 
+  width: 100%; 
+  top: 0; 
+  left: 0;
+  z-index: 200; 
+  text-align: center; 
+  font-size: 1em; 
+  font-weight: bold;
+  padding: 0.5em 0 0.5em 0; 
+  color: #ffc; 
+  background: #c30
+}
+  `.trim());
 
   function init() {
     var msg;
@@ -229,7 +258,7 @@ var asciimath = (function (asciimath) {
     nd.appendChild(document.createTextNode("For instructions see the "));
     var an = createElementXHTML("a");
     an.appendChild(document.createTextNode("ASCIIMathML"));
-    an.setAttribute("href", "http://www.chapman.edu/~jipsen/asciimath.html");
+    an.setAttribute("href", "http://asciimath.org");
     nd.appendChild(an);
     nd.appendChild(document.createTextNode(" homepage"));
     an = createElementXHTML("div");
@@ -242,7 +271,7 @@ var asciimath = (function (asciimath) {
 
   function translate(spanclassAM) {
     if (!translated) {
-    // run this only once
+      // run this only once
       translated = true;
       var body = document.getElementsByTagName("body")[0];
       var processN = document.getElementById(config.AMdocumentId);
@@ -546,7 +575,7 @@ var AMbbb = [
   var AMunit = { input: "`", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 
   var AMsymbols = [
-  //some greek symbols
+    //some greek symbols
     { input: "alpha", tag: "mi", output: "\u03B1", tex: null, ttype: CONST },
     { input: "beta", tag: "mi", output: "\u03B2", tex: null, ttype: CONST },
     { input: "chi", tag: "mi", output: "\u03C7", tex: null, ttype: CONST },
@@ -853,24 +882,21 @@ var AMbbb = [
   var AMnames = []; // list of input symbols
 
   function initSymbols() {
-  // special callback: this is invoked before ASCIImath symbol data is set up
-  // but AFTER the ASCIImath configuration has been initialized completely.
-  // This is the time where userland code gets to edit the symbol tables...
+    // special callback: this is invoked before ASCIImath symbol data is set up
+    // but AFTER the ASCIImath configuration has been initialized completely.
+    // This is the time where userland code gets to edit the symbol tables...
     if (typeof asciimath.config.preInitSymbols === "function") {
       var data = {
         AMsymbols: AMsymbols,
         asciimath: asciimath,
       };
-      asciimath.config.preInitSymbols(data);      
-      AMsymbols = data.AMsymbols;   // this table may have been patched by the preInitSymbols() callback.
+      asciimath.config.preInitSymbols(data);
+      AMsymbols = data.AMsymbols; // this table may have been patched by the preInitSymbols() callback.
     }
 
     var symlen = AMsymbols.length;
     for (var i = 0; i < symlen; i++) {
-      if (
-        AMsymbols[i].tex &&
-      !AMsymbols[i].notexcopy
-      ) {
+      if (AMsymbols[i].tex && !AMsymbols[i].notexcopy) {
         AMsymbols.push({
           input: AMsymbols[i].tex,
           tag: AMsymbols[i].tag,
@@ -938,8 +964,8 @@ var AMbbb = [
       // we can get away with comparing substructures using the simple `===`
       // operator:
       for (var k in rv) {
-      //var chk = ((k in o1) && (k in o2) && (o1[k] === o2[k]));
-      // ==> simplified version:
+        //var chk = ((k in o1) && (k in o2) && (o1[k] === o2[k]));
+        // ==> simplified version:
         var chk = o1[k] === o2[k];
         if (!chk) {
           return false;
@@ -951,30 +977,30 @@ var AMbbb = [
     for (i = 0; i < AMsymbols.length; i++) {
       var key = "K" + AMsymbols[i].input;
       if (hashes[key]) {
-      // check if objects are identical (which is okay as there are synonyms listed
-      // in the AMSymbols[] table): if they are, we do not report this as a
-      // collision:
+        // check if objects are identical (which is okay as there are synonyms listed
+        // in the AMSymbols[] table): if they are, we do not report this as a
+        // collision:
         if (!same(AMsymbols[i], hashes[key])) {
           collisions.push([AMsymbols[i], hashes[key]]);
         } else {
-        // remove dupe in the list:
-          AMsymbols[i] = null;    
+          // remove dupe in the list:
+          AMsymbols[i] = null;
         }
       } else {
         hashes[key] = AMsymbols[i];
       }
     }
     AMsymbols = AMsymbols.filter(function (s) {
-      return !!s;  // remove the duplicates
+      return !!s; // remove the duplicates
     });
-  
+
     AMsymbols.sort(compareNames);
     // construct the AMnames symbol lookup index table after sorting:
     AMnames = [];
     for (i = 0; i < AMsymbols.length; i++) {
       AMnames[i] = AMsymbols[i].input;
     }
-  
+
     if (collisions.length) {
       var msg = "ASCIImath: the symbol table has these colliding entries:\n";
       var lst = [];
@@ -992,7 +1018,7 @@ var AMbbb = [
   }
 
   function AMremoveCharsAndBlanks(str, n) {
-  // remove n characters and any following blanks
+    // remove n characters and any following blanks
     var st;
     if (str.charAt(n) === "\\" && str.charAt(n + 1) !== "\\" && str.charAt(n + 1) !== " ") {
       st = str.slice(n + 1);
@@ -1004,8 +1030,8 @@ var AMbbb = [
   }
 
   function AMposition(arr, str, n) {
-  // return position >=n where str appears or would be inserted
-  // assumes arr is sorted
+    // return position >=n where str appears or would be inserted
+    // assumes arr is sorted
     if (n === 0) {
       var h;
       var m;
@@ -1027,8 +1053,8 @@ var AMbbb = [
   }
 
   function AMgetSymbol(str) {
-  // return maximal initial substring of str that appears in names
-  // return null if there is none
+    // return maximal initial substring of str that appears in names
+    // return null if there is none
     var k = 0; // new pos
     var j = 0; // old pos
     var mk; // match pos
@@ -1111,7 +1137,7 @@ var AMbbb = [
       tagst = ("A" > st || st > "Z") && ("a" > st || st > "z") ? "mo" : "mi";
     }
     if (st === "-" && AMpreviousSymbol === INFIX) {
-    // trick "/" into recognizing "-" on second parse
+      // trick "/" into recognizing "-" on second parse
       AMcurrentSymbol = INFIX;
       return { input: st, tag: tagst, output: st, ttype: UNARY, func: true, val: true };
     }
@@ -1155,18 +1181,18 @@ var AMbbb = [
     return node;
   }
 
-  /*
-Parsing ASCII math expressions with the following grammar
-v ::= [A-Za-z] | greek letters | numbers | other constant symbols
-u ::= sqrt | text | bb | other       unary symbols for font commands
-b ::= frac | root | stackrel         binary symbols
-l ::= ( | [ | { | (: | {:            left brackets
-r ::= ) | ] | } | :) | :}            right brackets
-S ::= v | lEr | uS | bSS | -S        Simple expression
-I ::= S_S | S^S | S_S^S | S          Intermediate expression
-E ::= IE | I/I | I-E | -I/I          Expression
-Each terminal symbol is translated into a corresponding mathml node.
-*/
+/*
+ * Parsing ASCII math expressions with the following grammar
+ * v ::= [A-Za-z] | greek letters | numbers | other constant symbols
+ * u ::= sqrt | text | bb | other       unary symbols for font commands
+ * b ::= frac | root | stackrel         binary symbols
+ * l ::= ( | [ | { | (: | {:            left brackets
+ * r ::= ) | ] | } | :) | :}            right brackets
+ * S ::= v | lEr | uS | bSS | -S        Simple expression
+ * I ::= S_S | S^S | S_S^S | S          Intermediate expression
+ * E ::= IE | I/I | I-E | -I/I          Expression
+ * Each terminal symbol is translated into a corresponding mathml node.
+ */
 
   var AMnestingDepth;
   var AMpreviousSymbol;
@@ -1189,9 +1215,9 @@ Each terminal symbol is translated into a corresponding mathml node.
   }
 
   function AMparseSexpr(str) {
-  // parses str and returns [node,tailstr]
-  //
-  // WARNING: the returned `node` item MAY be NULL.
+    // parses str and returns [node,tailstr]
+    //
+    // WARNING: the returned `node` item MAY be NULL.
     var symbol;
     var node;
     var result;
@@ -1313,12 +1339,18 @@ Each terminal symbol is translated into a corresponding mathml node.
         return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
       }
       if (symbol.func) {
-      // functions hack
+        // functions hack
         st = str.charAt(0);
         if (
-          st === "^" || st === "_" || st === "/" || st === "|" || st === "," ||
-        st === "'" || st === "+" || st === "-" ||
-        (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
+          st === "^" || 
+          st === "_" || 
+          st === "/" || 
+          st === "|" || 
+          st === "," || 
+          st === "'" || 
+          st === "+" || 
+          st === "-" || 
+          (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
         ) {
           return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
         } else {
@@ -1328,21 +1360,21 @@ Each terminal symbol is translated into a corresponding mathml node.
       }
       result[0] = AMremoveBrackets(result[0]);
       if (symbol.input === "sqrt") {
-      // sqrt
+        // sqrt
         return ["\\sqrt{" + result[0] + "}", result[1]];
       } else if (symbol.input === "#") {
         return [AMTgetTeXsymbol(symbol) + "{" + result[0] + "}", result[1]];
       } else if (typeof symbol.rewriteleftright !== "undefined") {
-      // abs, floor, ceil
+        // abs, floor, ceil
         return ["{\\left" + symbol.rewriteleftright[0] + result[0] + "\\right" + symbol.rewriteleftright[1] + "}", result[1]];
       } else if (symbol.input === "cancel") {
-      // cancel
+        // cancel
         return ["\\cancel{" + result[0] + "}", result[1]];
       } else if (symbol.acc) {
-      // accent
+        // accent
         return [AMTgetTeXsymbol(symbol) + "{" + result[0] + "}", result[1]];
       } else {
-      // font change command, etc.
+        // font change command
         return [AMTgetTeXsymbol(symbol) + "{" + result[0] + "}", result[1]];
       }
 
@@ -1358,7 +1390,9 @@ Each terminal symbol is translated into a corresponding mathml node.
         return ["{" + AMTgetTeXsymbol(symbol) + "}", str];
       }
       result2[0] = AMremoveBrackets(result2[0]);
-      if (symbol.input === "color") {
+
+        // Set the correct attribute
+        if (symbol.input === "color") {
         newFrag = "{\\color{" + result[0].replace(/[\{\}]/g, "") + "}" + result2[0] + "}";
       } else if (symbol.input === "root") {
         newFrag = "{\\sqrt[" + result[0] + "]{" + result2[0] + "}}";
@@ -1376,22 +1410,22 @@ Each terminal symbol is translated into a corresponding mathml node.
       return ["{\\quad\\text{" + symbol.input + "}\\quad}", str];
 
     case LEFTRIGHT:
-    //if (rightvert) {
-    //  return [null, str];
-    //} else {
-    //  rightvert = true;
-    //}
+      //if (rightvert) {
+      //  return [null, str];
+      //} else {
+      //  rightvert = true;
+      //}
       AMnestingDepth++;
       str = AMremoveCharsAndBlanks(str, symbol.input.length);
       result = AMparseExpr(str, false);
       AMnestingDepth--;
       st = result[0].charAt(result[0].length - 1);
       if (st === "|" && str.charAt(0) !== ",") {
-      // it's an absolute value subterm
+        // it's an absolute value subterm
         node = "{\\left|" + result[0] + "}";
         return [node, result[1]];
       } else {
-      // the "|" is a \mid so use unicode 2223 (divides) for spacing
+        // the "|" is a \mid so use unicode 2223 (divides) for spacing
         node = "{\\mid}";
         return [node, str];
       }
@@ -1403,7 +1437,7 @@ Each terminal symbol is translated into a corresponding mathml node.
   }
 
   function AMparseIexpr(str) {
-  // parses str and returns [nodestr,tailstr]
+    // parses str and returns [nodestr,tailstr]
     var symbol;
     var sym1;
     var sym2;
@@ -1414,7 +1448,7 @@ Each terminal symbol is translated into a corresponding mathml node.
     sym1 = AMgetSymbol(str);
     result = AMparseSexpr(str);
     if (result[0] == null) {
-    // show box in place of missing argument
+      // show box in place of missing argument
       result[0] = "{}";
     }
     node = result[0];
@@ -1425,7 +1459,7 @@ Each terminal symbol is translated into a corresponding mathml node.
       // if (symbol.input === "/") result = AMparseIexpr(str); else ...
       result = AMparseSexpr(str);
       if (result[0] == null) {
-      // show box in place of missing argument
+        // show box in place of missing argument
         result[0] = "{}";
       } else {
         result[0] = AMremoveBrackets(result[0]);
@@ -1440,7 +1474,7 @@ Each terminal symbol is translated into a corresponding mathml node.
           str = AMremoveCharsAndBlanks(str, sym2.input.length);
           var res2 = AMparseSexpr(str);
           if (res2[0] == null) {
-          // show box in place of missing argument
+            // show box in place of missing argument
             res2[0] = "{}";
           }
           res2[0] = AMremoveBrackets(res2[0]);
@@ -1461,11 +1495,11 @@ Each terminal symbol is translated into a corresponding mathml node.
       dofunc = true;
     }
     if (symbol.tietoprev) {
-    // connect in any primes
-    //node = node + "\\" + symbol.tex;
+      // connect in any primes
+      //node = node + "\\" + symbol.tex;
       result = AMparseSexpr(str);
       if (result[0] == null) {
-      // show box in place of missing argument
+        // show box in place of missing argument
         result[0] = "{}";
       }
       str = result[1];
@@ -1475,8 +1509,11 @@ Each terminal symbol is translated into a corresponding mathml node.
       dofunc = true;
     }
     if (dofunc && sym1.func) {
-      if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET &&
-        sym2.input !== "+" && sym2.input !== "-" &&
+      if (
+        sym2.ttype !== INFIX && 
+        sym2.ttype !== RIGHTBRACKET && 
+        sym2.input !== "+" && 
+        sym2.input !== "-" && 
         (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
       ) {
         result = AMparseIexpr(str);
@@ -1513,25 +1550,26 @@ Each terminal symbol is translated into a corresponding mathml node.
         newFrag += node;
         symbol = AMgetSymbol(str);
       } else if (typeof node !== "undefined") {
-      // this stricter conditional helped us find bugs in the parse routines
-      // as it caused MJ to output literal "null" in rare circumstances.
-      // That bug has been fixed but we keep this strict check, rather than
-      // unifying it to the `node != null` check used everywhere else in the
-      // code, so that we can catch regressions earlier and easier.
+        // this stricter conditional helped us find bugs in the parse routines
+        // as it caused MJ to output literal "null" in rare circumstances.
+        // That bug has been fixed but we keep this strict check, rather than
+        // unifying it to the `node != null` check used everywhere else in the
+        // code, so that we can catch regressions earlier and easier.
         newFrag += node;
       }
     } while (((
-      symbol.ttype !== RIGHTBRACKET &&
-        (symbol.ttype !== LEFTRIGHT || rightbracket)
-    ) ||
-      AMnestingDepth === 0
-    ) &&
-    symbol != null && symbol.output !== ""
+          symbol.ttype !== RIGHTBRACKET && 
+          (symbol.ttype !== LEFTRIGHT || rightbracket)
+        ) || 
+        AMnestingDepth === 0
+      ) && 
+      symbol != null && 
+      symbol.output !== ""
     );
     if (symbol.ttype === RIGHTBRACKET || symbol.ttype === LEFTRIGHT) {
-    //if (AMnestingDepth > 0) {
-    //  AMnestingDepth--;
-    //}
+      //if (AMnestingDepth > 0) {
+      //  AMnestingDepth--;
+      //}
       var len = newFrag.length;
       if (len > 2 && newFrag.charAt(0) === "{" && newFrag.indexOf(",") > 0) {
       // could be matrix (total rewrite from .js)
@@ -1539,8 +1577,8 @@ Each terminal symbol is translated into a corresponding mathml node.
         if (right === ")" || right === "]") {
           var left = newFrag.charAt(6);
           if (
-            (left === "(" && right === ")" && symbol.output !== "}") ||
-          (left === "[" && right === "]")
+            (left === "(" && right === ")" && symbol.output !== "}") || 
+            (left === "[" && right === "]")
           ) {
             var mxout = "";
             var pos = new Array(); // position of commas
@@ -1708,7 +1746,7 @@ Each terminal symbol is translated into a corresponding mathml node.
     node.src = config.AMTcgiloc + "?" + texstring;
     node.style.verticalAlign = "middle";
     if (config.showasciiformulaonhover) {
-    // fixed by djhsu so newline does not show in Gecko
+      // fixed by djhsu so newline does not show in Gecko
       node.setAttribute("title", str.replace(/\s+/g, " "));
     }
 
@@ -1729,12 +1767,10 @@ Each terminal symbol is translated into a corresponding mathml node.
         newFrag.appendChild(parseMath(arr[i]));
       } else {
         var arri = linebreaks ? arr[i].split("\n\n") : [arr[i]];
-        newFrag.appendChild(createElementXHTML("span")
-        .appendChild(document.createTextNode(arri[0])));
+        newFrag.appendChild(createElementXHTML("span").appendChild(document.createTextNode(arri[0])));
         for (var j = 1; j < arri.length; j++) {
           newFrag.appendChild(createElementXHTML("p"));
-          newFrag.appendChild(createElementXHTML("span")
-          .appendChild(document.createTextNode(arri[j])));
+          newFrag.appendChild(createElementXHTML("span").appendChild(document.createTextNode(arri[j])));
         }
       }
       expr = !expr;
@@ -1743,9 +1779,9 @@ Each terminal symbol is translated into a corresponding mathml node.
   }
 
   function AMautomathrec(str) {
-  // formula is a space (or start of str) followed by a maximal sequence
-  // of *two* or more tokens, possibly separated by runs of digits and/or space.
-  // tokens are single letters (except a, A, I) and ASCIIMathML tokens
+    // formula is a space (or start of str) followed by a maximal sequence
+    // of *two* or more tokens, possibly separated by runs of digits and/or space.
+    // tokens are single letters (except a, A, I) and ASCIIMathML tokens
     var texcommand = "\\\\[a-zA-Z]+|\\\\\\s|";
     var ambigAMtoken = "\\b(?:oo|lim|ln|int|oint|del|grad|aleph|prod|prop|sinh|cosh|tanh|cos|sec|pi|tt|fr|sf|sube|supe|sub|sup|det|mod|gcd|lcm|min|max|vec|ddot|ul|chi|eta|nu|mu)(?![a-z])|";
     var englishAMtoken = "\\b(?:sum|ox|log|sin|tan|dim|hat|bar|dot)(?![a-z])|";
@@ -1759,7 +1795,7 @@ Each terminal symbol is translated into a corresponding mathml node.
     var re1 = new RegExp("(^|\\s)([b-zB-HJ-Z+*<>]|" + texcommand + ambigAMtoken + simpleAMtoken + ")(\\s|\\n|$)", "g");
     var re2 = new RegExp("(^|\\s)([a-z]|" + texcommand + ambigAMtoken + simpleAMtoken + ")([,.])", "g"); // removed |\d+ for now
     for (var i = 0; i < arr.length; i++) {
-    // single nonenglish tokens
+      // single nonenglish tokens
       if (i % 2 === 0) {
         arr[i] = arr[i].replace(re1, " `$2`$3");
         arr[i] = arr[i].replace(re2, " `$2`$3");
@@ -1767,7 +1803,7 @@ Each terminal symbol is translated into a corresponding mathml node.
       }
     }
     str = arr.join(config.AMdelimiter1);
-    str = str.replace(/((^|\s)\([a-zA-Z]{2,}.*?)\)`/g, "$1`)");        // fix parentheses
+    str = str.replace(/((^|\s)\([a-zA-Z]{2,}.*?)\)`/g, "$1`)"); // fix parentheses
     str = str.replace(/`(\((a\s|in\s))(.*?[a-zA-Z]{2,}\))/g, "$1`$3"); // fix parentheses
     str = str.replace(/\sin`/g, "` in");
     str = str.replace(/`(\(\w\)[,.]?(\s|\n|$))/g, "$1`");
@@ -1883,12 +1919,12 @@ Each terminal symbol is translated into a corresponding mathml node.
       } catch (err) {}
       if (
         st == null ||
-      /amath\b|\\begin{a?math}/i.test(st) ||
-      st.indexOf(config.AMdelimiter1 + " ") !== -1 ||
-      st.slice(-1) === config.AMdelimiter1 ||
-      //st.slice(-1) === config.AMdelimiter2 ||
-      st.indexOf(config.AMdelimiter1 + "<") !== -1 ||
-      st.indexOf(config.AMdelimiter1 + "\n") !== -1
+        /amath\b|\\begin{a?math}/i.test(st) ||
+        st.indexOf(config.AMdelimiter1 + " ") !== -1 ||
+        st.slice(-1) === config.AMdelimiter1 ||
+        //st.slice(-1) === config.AMdelimiter2 ||
+        st.indexOf(config.AMdelimiter1 + "<") !== -1 ||
+        st.indexOf(config.AMdelimiter1 + "\n") !== -1
       ) {
         processNodeR(n, linebreaks);
       }
@@ -1906,23 +1942,23 @@ Each terminal symbol is translated into a corresponding mathml node.
 
   // setup onload function
   if (typeof window.addEventListener !== "undefined") {
-  //.. gecko, safari, konqueror and standard
+    //.. gecko, safari, konqueror and standard
     window.addEventListener("load", generic, false);
   } else if (typeof document.addEventListener !== "undefined") {
-  //.. opera 7
+    //.. opera 7
     document.addEventListener("load", generic, false);
   } else if (typeof window.attachEvent !== "undefined") {
-  //.. win/ie
+    //.. win/ie
     window.attachEvent("onload", generic);
   } else {
-  //.. mac/ie5 and anything else that gets this far
-  //if there's an existing onload function
+    //.. mac/ie5 and anything else that gets this far
+    //if there's an existing onload function
     if (typeof window.onload === "function") {
-    //store it
+      //store it
       var existing = onload;
       //add new onload handler
       window.onload = function () {
-      //call existing onload function
+        //call existing onload function
         existing();
         //call generic onload function
         generic();
@@ -1935,7 +1971,6 @@ Each terminal symbol is translated into a corresponding mathml node.
   /////////////////////////////////////////////////////
   // === END ASCIIMATH->MATHJAX COMMENTED SECTION 2 ===
   /////////////////////////////////////////////////////
-
 
   // also expose some functions to outside
   asciimath.newcommand = newcommand;
@@ -1952,4 +1987,3 @@ Each terminal symbol is translated into a corresponding mathml node.
 /////////////////////////////////////////////////////
 // ================ END ASCIIMATH ===================
 /////////////////////////////////////////////////////
-
