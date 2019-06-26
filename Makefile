@@ -21,4 +21,6 @@ lint:
 
 fix:
 	./node_modules/.bin/eslint --fix .
+	./node_modules/.bin/prettier --write *.js test/*.js mathjax/*.js
+	./node_modules/.bin/eslint --fix .
 

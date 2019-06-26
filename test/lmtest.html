@@ -1,19 +1,49 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<script type="text/javascript" src="../LaTeXMathML.js"></script>
 	<title> LaTeXMathML examples </title>
+<style>
+#menu, #title, #subtitle, #author, .display { text-align: center; }
+body    { 
+    margin: 6em 10%;
+}
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+header {
+    position: fixed;
+    margin-top: 0;
+    padding: 0;
+    width: 80%;
+    border-bottom: 3px #b1b1b1 solid;
+    background: white;
+    top: 0;
+}
+header p {
+    margin: 0;
+    padding: 0.2em 2em 0.3em;
+    text-align: center;
+}
+</style>
 </head>
 <body>
+
+<header>
+    <p><a href="toc.html">Overview of all test pages</a></p>
+</header>
+
 	<h1> LaTeXMathML examples </h1>
 <hr>
 
-<br/>
+<p>
 This page is a test of
 <a href="lm.html">
 LaTeXMathML.js</a>.
 
+<p>
 The input
 <blockquote>
 <font color="blue">
@@ -22,6 +52,7 @@ The input
 </blockquote>
 produces <font color="red"> $\$\alpha + \$\beta = \$(\alpha + \beta).$</font>
 
+<p>
 The input
 <blockquote>
 <font color="blue">
@@ -35,6 +66,7 @@ produces <font color="red">$
 \frac ab \sum_{n=1}^\infty a_n + \displaystyle{ \left\{
 \frac{1}{13} \sum_{n=1}^\infty b_n \right\} }.$</font>
 
+<p>
 Changing
 <font color="blue"> \displaystyle </font> to
 <br/>
@@ -49,6 +81,7 @@ gives
 \frac ab \sum_{n=1}^\infty a_n + \textstyle{ \left\{
 \frac{1}{13} \sum_{n=1}^\infty b_n \right\} }.$</font> </blockquote>
 
+<p>
 The input
 <blockquote>
 <font color="blue"> &lt;blockquote>\$\begin{eqnarray}
@@ -65,6 +98,7 @@ x & = & \frac{-7 \pm \sqrt{49 - 24}}{6} \\
 (LaTeXMathML tries to reduce the column spacing in eqnarrays,
 but some browsers do not respond, and others over-react.)
 
+<p>
 The input
 <blockquote>
 <font color="blue"> &lt;blockquote>\$\displaystyle{
@@ -84,6 +118,7 @@ x^2 \sin \frac1x & \textrm{if } x \ne 0, \\
 \end{array}\right.
 }$</font> </blockquote>
 
+<p>
 The input
 <blockquote>
 <font color="blue"> &lt;blockquote>\$\displaystyle{
@@ -99,6 +134,7 @@ A = \left[\begin{array}{c c c}
 1-x & 0 & 0 \\ 0 & 1-x & 0 \\ 0 & 0 & 1-x \end{array}\right].
 }$</font> </blockquote>
 
+<p>
 Large summation signs, etc., without limits can sometimes get too big.
 For example, the input
 <blockquote>
@@ -121,33 +157,10 @@ which is arguably better.
 (This is a bug in LaTeXMathML, but one that would be difficult
 to correct.)
 
-<br/> <br/>
 <hr>
 <p>
 <a href="lm.html">
 LaTeXMathML home page</a>
 </p>
-<p>
-     <a href="http://validator.w3.org/check?uri=referer"><img border="0"
-        src="http://www.w3.org/Icons/valid-html401"
-        alt="Valid HTML 4.01 Transitional" height="31" width="88"></a>
-</p>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<a name="largesigma"></a>
 </body>
 </html>

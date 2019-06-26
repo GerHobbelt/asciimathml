@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
 <meta charset="utf-8" /> 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -11,9 +12,35 @@
 .failed {
 	background-color: #f99;
 }
+body    { 
+    margin: 6em 10%;
+}
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+header {
+    position: fixed;
+    margin-top: 0;
+    padding: 0;
+    width: 80%;
+    border-bottom: 3px #b1b1b1 solid;
+    background: white;
+    top: 0;
+}
+header p {
+    margin: 0;
+    padding: 0.2em 2em 0.3em;
+    text-align: center;
+}
 </style>
 </head>
 <body>
+
+<header>
+    <p><a href="toc.html">Overview of all test pages</a></p>
+</header>
+
 <h1>ASCIIMathML Unit Tests</h1>
 <p>To create new tests, enter some ASCIIMath below and hit Math Test. Copy that into unittests.js, then run it
 to ensure it renders as expected.</p>

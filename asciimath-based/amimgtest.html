@@ -4,19 +4,50 @@
 <title>ASCIIMathML test suite</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script type="text/javascript">
-var AMTcgiloc = 'http://www.imathas.com/cgi-bin/mimetex.cgi';
+var asciimath = {
+  config: {
+    AMTcgiloc: 'http://www.imathas.com/cgi-bin/mimetex.cgi',
+    // displaystyle: true,
+    debug: true,
+  },
+};
 </script>
 <script type="text/javascript" src="ASCIIMathTeXImg.js"></script>
 <style type="text/css">
 #menu, #title, #subtitle, #author, .display { text-align: center; }
-body    { font-family: Arial; margin:10%; }
+body    { 
+    font-family: Arial, sans-serif; 
+    margin: 6em 10%;
+}
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
 p,table { font-family: Times; }
-table   { border-collapse:collapse; }
-td, th  { border:1px solid black; padding:5px; text-align:center; }
+table   { border-collapse: collapse; }
+td, th  { border: 1px solid black; padding: 5px; text-align: center; }
 img     { border: 0; } 
+header {
+    position: fixed;
+    margin-top: 0;
+    padding: 0;
+    width: 80%;
+    border-bottom: 3px #b1b1b1 solid;
+    background: white;
+    top: 0;
+}
+header p {
+    margin: 0;
+    padding: 0.2em 2em 0.3em;
+    text-align: center;
+}
 </style>
 </head>
 <body>
+
+<header>
+    <p><a href="../test/toc.html">Overview of all test pages</a></p>
+</header>
 
 <h2 id="title">ASCIIMathML: Simple ASCII math notation</h2>
 
@@ -65,6 +96,12 @@ Firefox
 <td>`f(x)=\sum_{n=0}^\infty\frac{f^{(n)}(a)}{n!}(x-a)^n`</td>
 <td><b>\`</b>f(x)=\sum_{n=0}^\infty\frac{f^{(n)}(a)}{n!}(x-a)^n<b>\`</b></td>
 <td>standard LaTeX produces a similar result</td>
+</tr>
+
+<tr>
+<td>`f'(x)=f(x)/x`</td>
+<td><b>\`</b>f'(x)=f(x)/x<b>\`</b></td>
+<td>TeX \prime, e.g. derivative functions</td>
 </tr>
 
 <tr>
@@ -172,6 +209,12 @@ but decimal numbers are parsed with possible sign</td>
 <td>`underbrace(1+2+3+4)_("4 terms") - obrace(2+3)^(n)`</td>
 <td><b>\`</b>underbrace(1+2+3+4)_("4 terms") - obrace(2+3)^(n)<b>\`</b></td>
 <td>under and over braces</td>
+</tr>
+
+<tr>
+<td>`#a + #5 * (#numerator/#denominator) = 3%`</td>
+<td><b>\`</b>#a + #5 * (#numerator/#denominator) = 3%<b>\`</b></td>
+<td>#variables ...</td>
 </tr>
 </table>
 

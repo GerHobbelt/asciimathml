@@ -2,6 +2,7 @@ module.exports = {
   "arrowParens": "always",
 
   "trailingComma": "es5",
+  //"trailingComma": "none",
   //"trailingComma": "all",
   
   "useTabs": false,
