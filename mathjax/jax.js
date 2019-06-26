@@ -2364,7 +2364,7 @@ ASCIIMATH.Augment({
     },
     Augment: function (def) {
       for (var id in def) {
-        if (def.hasOwnProperty(id)) {
+        if (Object.prototype.hasOwnProperty.call(def, id)) {
           throw new Error("MathJax-AM: cannot override this config member function/attribute: " + id);
           // this[id] = def[id];
         }

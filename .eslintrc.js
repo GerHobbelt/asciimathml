@@ -6,7 +6,7 @@ module.exports = {
         // "airbnb"
     ],
     "env": { 
-        "es6": false,
+        "es6": true,
         "browser": true,
         "node": true, 
     }, 
@@ -14,7 +14,7 @@ module.exports = {
         //"no-mixed-operators"
     ],
     "parserOptions": { 
-        "ecmaVersion": 5,
+        "ecmaVersion": 7,
         "sourceType": "script",
         "impliedStrict": true, 
     },
@@ -48,22 +48,26 @@ module.exports = {
             },
         }],
         // "max-len": "off",                 // disables line length check
-        "max-len": ["warn", {"code": 250, "ignoreUrls": true}],
+        "max-len": ["warn", {"code": 120, "ignoreUrls": true, "ignoreRegExpLiterals": true, "ignoreTemplateLiterals": true, "ignoreStrings": true }],
         "curly": ["warn", "all"],        // wrap all if/else statements in {...} curly braces
         "eqeqeq": ["warn", "always", {"null": "ignore"}],
     
         // disallow use of comma operator
-        'no-sequences': 'error',
+        'no-sequences': "warn",
 
         "max-statements-per-line": ["warn", { "max": 1 }],
         // "one-var-declaration-per-line": ["warn", "always"],
-        "one-var": ["error", { 
+        "one-var": ["warn", { 
             var: "never", 
             let: "never", 
             const: "never" 
-        }],    // break up var decls into multiple stmts: one per var.
-        "nonblock-statement-body-position": ["error", "below"],
+        }],    
+        // break up var decls into multiple stmts: one per var.
+        "nonblock-statement-body-position": ["warn", "below"],
+
         "no-console": "off",
+        "no-debugger": "warn",
+
         "no-useless-escape": "off",
         "no-empty": "off",
         "no-unused-vars": "off",
@@ -71,8 +75,17 @@ module.exports = {
         "no-mixed-spaces-and-tabs": ["warn", true], 
         "no-func-assign": 1,
         "no-undef": 1,
+        "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }],
+        
+        // https://eslint.org/docs/rules/no-cond-assign
+        "no-cond-assign": ["warn", "except-parens"],
+
         // "no-extra-parens": 1,
-        "no-extra-parens": ["warn", "all", { "nestedBinaryExpressions": false }],
+        "no-extra-parens": ["warn", "all", { 
+            "nestedBinaryExpressions": false,
+            "returnAssign": false,
+            "conditionalAssign": false,
+        }],
         // ["warn", "all",
         //     { 
         //         "conditionalAssign": false,
@@ -85,9 +98,9 @@ module.exports = {
         // ],
         
         "no-mixed-operators": "off",
-        "no-mixed-operators/no-mixed-operators": "warn",
+        //"no-mixed-operators/no-mixed-operators": "warn",
 
-        "space-before-function-paren": ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
+        "space-before-function-paren": ["warn", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
         "no-confusing-arrow": ["warn", {"allowParens": true}],
         "space-unary-ops": ["warn", {"words": true, "nonwords": false}],
 
@@ -96,6 +109,12 @@ module.exports = {
         "func-call-spacing": ["warn", "never"],
         "multiline-ternary": ["warn", "always-multiline"],
 
-        "no-debugger": 2,
+        "comma-dangle": ["warn", {
+            "arrays": "never",
+            "objects": "never",
+            "imports": "never",
+            "exports": "never",
+            "functions": "never"
+        }],
     },
 };

@@ -17,8 +17,8 @@ pretty: copy
 	./node_modules/.bin/eslint --fix dist/*.js dist/**/*.js
 
 lint:
-	./node_modules/.bin/eslint .
+	./node_modules/.bin/eslint . mathjax/*.js
 
 fix:
-	./node_modules/.bin/eslint --fix .
+	./node_modules/.bin/eslint --fix . mathjax/*.js
 

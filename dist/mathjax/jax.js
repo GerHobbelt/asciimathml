@@ -246,15 +246,18 @@
 
   var navigator = { appName: "MathJax" }; // hide the true navigator object
 
+
+
+
   /******************************************************************
-   *
-   *   The following section is ASCIIMathML.js Version 2.2
-   *   (c) Peter Jipsen, used with permission.
-   *
-   *   Some sections are commented out to save space in the
-   *   minified version (but that is not strictly necessary).
-   *
-   ******************************************************************/
+ *
+ *   The following section is ASCIIMathML.js Version 2.2
+ *   (c) Peter Jipsen, used with permission.
+ *
+ *   Some sections are commented out to save space in the
+ *   minified version (but that is not strictly necessary).
+ *
+ ******************************************************************/
 
   /*
 ASCIIMathML.js
@@ -297,36 +300,36 @@ THE SOFTWARE.
   // Import/export only one global var! All configuration items reside under `asciimath.config`.
   function initASCIImathML(asciimath) {
     var config = {
-      AMTcgiloc: "", // (unused) set to the URL of your LaTeX renderer, e.g.
+      AMTcgiloc: "",                 // (unused) set to the URL of your LaTeX renderer, e.g.
       // http://www.imathas.com/cgi-bin/mimetex.cgi
-      mathcolor: "blue", // change it to "" (to inherit) or specify another color
-      mathfontsize: "1em", // change to e.g. 1.2em for larger math
-      mathfontfamily: "serif", // change to "" to inherit (works in IE)
+      mathcolor: "blue",             // change it to "" (to inherit) or specify another color
+      mathfontsize: "1em",           // change to e.g. 1.2em for larger math
+      mathfontfamily: "serif",       // change to "" to inherit (works in IE)
       // or another family (e.g. "arial")
-      mathbg: "", // (unused) set to 'dark' when you have a dark background
-      debug: false, // true: print some progress and diagnostics info lines in the console
-      automathrecognize: false, // writing "amath" on page makes this true
-      checkForMathML: true, // check if browser can display MathML
-      notifyIfNoMathML: true, // display note if no MathML capability
-      alertIfNoMathML: false, // show alert box if no MathML capability
-      translateOnLoad: true, // set to `false` to do call translators from js,
+      mathbg: "",                    // (unused) set to 'dark' when you have a dark background
+      debug: false,                  // true: print some progress and diagnostics info lines in the console
+      automathrecognize: false,      // writing "amath" on page makes this true
+      checkForMathML: true,          // check if browser can display MathML
+      notifyIfNoMathML: true,        // display note if no MathML capability
+      alertIfNoMathML: false,        // show alert box if no MathML capability
+      translateOnLoad: true,         // set to `false` to do call translators from js,
       // set to `true` to autotranslate
-      translateASCIIMath: true, // false to preserve `..`
-      displaystyle: true, // puts limits above and below large operators
+      translateASCIIMath: true,      // false to preserve `..`
+      displaystyle: true,            // puts limits above and below large operators
       showasciiformulaonhover: true, // helps students learn ASCIIMath
-      decimalsign: ".", // if "," then when writing lists or matrices put
+      decimalsign: ".",              // if "," then when writing lists or matrices put
       // a space after the "," like `(1, 2)` not `(1,2)`
-      decimalsignAlternative: ".", // if "," then when writing lists or matrices put
+      decimalsignAlternative: ".",   // if "," then when writing lists or matrices put
       // a space after the "," like `(1, 2)` not `(1,2)`
-      AMdelimiter1: "`", // can use other characters
-      AMescape1: "\\\\`", // can use other characters
-      AMusedelimiter2: true, // whether to use second delimiter below
+      AMdelimiter1: "`",             // can use other characters
+      AMescape1: "\\\\`",            // can use other characters
+      AMusedelimiter2: true,         // whether to use second delimiter below
       AMdelimiter2: "$",
       AMescape2: "\\\\\\$",
       AMdelimiter2regexp: "\\$",
-      AMdocumentId: "wikitext", // PmWiki element containing math (default=body)
+      AMdocumentId: "wikitext",      // PmWiki element containing math (default=body)
       doubleblankmathdelimiter: false, // if true,  x+1  is equal to `x+1`
-      fixphi: true, // false to return to legacy phi/varphi mapping
+      fixphi: true,                  // false to return to legacy phi/varphi mapping
     };
 
     // set up global var and mix config object:
@@ -334,16 +337,14 @@ THE SOFTWARE.
     if (asciimath.config) {
       // special callback: this is invoked before any ASCIImath data is set up;
       // not even the configuration settings have been initialized!
-      if (typeof asciimath.config.preInit === "function") {
+      if (typeof asciimath.config.preInitConfig === "function") {
         var data = {
           defaultConfig: config,
-          AMsymbols: AMsymbols,
           asciimath: asciimath,
         };
-        asciimath.config.preInit(data);
-        AMsymbols = data.AMsymbols; // this table may have been patched by the preInit() callback.
+        asciimath.config.preInitConfig(data);      
       }
-
+    
       // also track which options the user specified which we don't know about:
       // help diagnose user config coding errors.
       var unused = [];
@@ -363,7 +364,9 @@ THE SOFTWARE.
 
       // report any unknown user option entries:
       if (unused.length) {
-        var msg = "ASCIImath: user config object contains these unknown options:\n" + "  {" + unused.join(",") + "}\n" + "Please remove these from your `asciimath.config` object.";
+        var msg = "ASCIImath: user config object contains these unknown options:\n" +
+        "  {" + unused.join(",") + "}\n" +
+        "Please remove these from your `asciimath.config` object.";
         if (typeof console !== "undefined" && typeof console.error === "function") {
           console.error(msg);
         } else {
@@ -375,7 +378,7 @@ THE SOFTWARE.
 
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-    var isIE = navigator.appName.slice(0, 9) === "Microsoft";
+    var isIE = navigator.appName.slice(0,9) === "Microsoft";
 
     /*
 
@@ -533,7 +536,7 @@ function createElementXHTML(t) {
   } else {
     return document.createElementNS("http://www.w3.org/1999/xhtml", t);
   }
-};
+}
 
 /////////////////////////////////////////////////////
 // === END ASCIIMATH->MATHJAX COMMENTED SECTION 1 ===
@@ -855,6 +858,7 @@ var AMbbb = [
     var AMquote = { input: '"', tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
     var AMvar = { input: "#", tag: "mstyle", atname: "mathvariant", atval: "italic", output: "mathtt", tex: null, ttype: TEXT };
     var AMunit = { input: "`", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
+    // var AMunit = { input: "§", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 
     var AMsymbols = [
       //some greek symbols
@@ -1149,10 +1153,24 @@ var AMbbb = [
     var AMnames = []; // list of input symbols
 
     function initSymbols() {
-      var i;
+      // special callback: this is invoked before ASCIImath symbol data is set up
+      // but AFTER the ASCIImath configuration has been initialized completely.
+      // This is the time where userland code gets to edit the symbol tables...
+      if (typeof asciimath.config.preInitSymbols === "function") {
+        var data = {
+          AMsymbols: AMsymbols,
+          asciimath: asciimath,
+        };
+        asciimath.config.preInitSymbols(data);      
+        AMsymbols = data.AMsymbols;   // this table may have been patched by the preInitSymbols() callback.
+      }
+
       var symlen = AMsymbols.length;
-      for (i = 0; i < symlen; i++) {
-        if (AMsymbols[i].tex && !AMsymbols[i].notexcopy) {
+      for (var i = 0; i < symlen; i++) {
+        if (
+          AMsymbols[i].tex &&
+      !AMsymbols[i].notexcopy
+        ) {
           AMsymbols.push({
             input: AMsymbols[i].tex,
             tag: AMsymbols[i].tag,
@@ -1240,23 +1258,23 @@ var AMbbb = [
             collisions.push([AMsymbols[i], hashes[key]]);
           } else {
             // remove dupe in the list:
-            AMsymbols[i] = null;
+            AMsymbols[i] = null;    
           }
         } else {
           hashes[key] = AMsymbols[i];
         }
       }
       AMsymbols = AMsymbols.filter(function (s) {
-        return !!s; // remove the duplicates
+        return !!s;  // remove the duplicates
       });
-
+  
       AMsymbols.sort(compareNames);
       // construct the AMnames symbol lookup index table after sorting:
       AMnames = [];
       for (i = 0; i < AMsymbols.length; i++) {
         AMnames[i] = AMsymbols[i].input;
       }
-
+  
       if (collisions.length) {
         var msg = "ASCIImath: the symbol table has these colliding entries:\n";
         var lst = [];
@@ -1554,7 +1572,11 @@ Each terminal symbol is translated into a corresponding mathml node.
         if (symbol.func) {
           // functions hack
           st = str.charAt(0);
-          if (st === "^" || st === "_" || st === "/" || st === "|" || st === "," || st === "'" || st === "+" || st === "-" || (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")) {
+          if (
+            st === "^" || st === "_" || st === "/" || st === "|" || st === "," ||
+        st === "'" || st === "+" || st === "-" ||
+        (symbol.input.length === 1 && symbol.input.match(/\w/) && st !== "(")
+          ) {
             return [createMmlNode(symbol.tag, document.createTextNode(symbol.output)), str];
           } else {
             node = createMmlNode("mrow", createMmlNode(symbol.tag, document.createTextNode(symbol.output)));
@@ -1584,9 +1606,14 @@ Each terminal symbol is translated into a corresponding mathml node.
           node = createMmlNode(symbol.tag, result[0]);
           var accnode = createMmlNode("mo", document.createTextNode(symbol.output));
           if (
-            symbol.input === "vec" &&
-              ((result[0].nodeName === "mrow" && result[0].childNodes.length === 1 && result[0].firstChild.firstChild.nodeValue != null && result[0].firstChild.firstChild.nodeValue.length === 1) ||
-                (result[0].firstChild.nodeValue != null && result[0].firstChild.nodeValue.length === 1))
+            symbol.input === "vec" && (
+              (result[0].nodeName === "mrow" &&
+           result[0].childNodes.length === 1 &&
+           result[0].firstChild.firstChild.nodeValue != null &&
+           result[0].firstChild.firstChild.nodeValue.length === 1) ||
+          (result[0].firstChild.nodeValue != null
+            && result[0].firstChild.nodeValue.length === 1)
+            )
           ) {
             accnode.setAttribute("stretchy", false);
           }
@@ -1597,7 +1624,10 @@ Each terminal symbol is translated into a corresponding mathml node.
           if (!isIE && typeof symbol.codes !== "undefined") {
             for (i = 0; i < result[0].childNodes.length; i++) {
               if (result[0].childNodes[i].nodeName === "mi" || result[0].nodeName === "mi") {
-                st = result[0].nodeName === "mi" ? result[0].firstChild.nodeValue : result[0].childNodes[i].firstChild.nodeValue;
+                st = result[0].nodeName === "mi" ?
+                  result[0].firstChild.nodeValue :
+                  result[0].childNodes[i].firstChild.nodeValue
+                ;
                 var newst = [];
                 for (var j = 0; j < st.length; j++) {
                   if (st.charCodeAt(j) > 64 && st.charCodeAt(j) < 91) {
@@ -1609,9 +1639,11 @@ Each terminal symbol is translated into a corresponding mathml node.
                   }
                 }
                 if (result[0].nodeName === "mi") {
-                  result[0] = createMmlNode("mo").appendChild(document.createTextNode(newst));
+                  result[0] = createMmlNode("mo")
+                  .appendChild(document.createTextNode(newst));
                 } else {
-                  result[0].replaceChild(createMmlNode("mo").appendChild(document.createTextNode(newst)), result[0].childNodes[i]);
+                  result[0].replaceChild(createMmlNode("mo")
+                  .appendChild(document.createTextNode(newst)), result[0].childNodes[i]);
                 }
               }
             }
@@ -1797,7 +1829,10 @@ Each terminal symbol is translated into a corresponding mathml node.
         dofunc = true;
       }
       if (dofunc && sym1.func) {
-        if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET && sym2.input !== "+" && sym2.input !== "-" && (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)) {
+        if (sym2.ttype !== INFIX && sym2.ttype !== RIGHTBRACKET &&
+        sym2.input !== "+" && sym2.input !== "-" &&
+        (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
+        ) {
           result = AMparseIexpr(str);
           node = createMmlNode("mrow", node);
           node.appendChild(result[0]);
@@ -1864,13 +1899,25 @@ Each terminal symbol is translated into a corresponding mathml node.
           symbol = result[2];
           return [newFrag, str, symbol];
         }
-      } while (((symbol.ttype !== RIGHTBRACKET && (symbol.ttype !== LEFTRIGHT || rightbracket)) || AMnestingDepth === 0) && symbol != null && symbol.output !== "");
+      } while (((
+        symbol.ttype !== RIGHTBRACKET &&
+        (symbol.ttype !== LEFTRIGHT || rightbracket)
+      ) ||
+      AMnestingDepth === 0
+      ) &&
+    symbol != null && symbol.output !== ""
+      );
       if (symbol.ttype === RIGHTBRACKET || symbol.ttype === LEFTRIGHT) {
         //if (AMnestingDepth > 0) {
         //  AMnestingDepth--;
         //}
         var len = newFrag.childNodes.length;
-        if (len > 0 && newFrag.childNodes[len - 1].nodeName === "mrow" && newFrag.childNodes[len - 1].lastChild && newFrag.childNodes[len - 1].lastChild.firstChild) {
+        if (
+          len > 0 &&
+      newFrag.childNodes[len - 1].nodeName === "mrow" &&
+      newFrag.childNodes[len - 1].lastChild &&
+      newFrag.childNodes[len - 1].lastChild.firstChild
+        ) {
           //matrix
           //removed to allow row vectors: //&& len>1 &&
           //newFrag.childNodes[len-2].nodeName === "mo" &&
@@ -1878,7 +1925,10 @@ Each terminal symbol is translated into a corresponding mathml node.
           var right = newFrag.childNodes[len - 1].lastChild.firstChild.nodeValue;
           if (right === ")" || right === "]") {
             var left = newFrag.childNodes[len - 1].firstChild.firstChild.nodeValue;
-            if ((left === "(" && right === ")" && symbol.output !== "}") || (left === "[" && right === "]")) {
+            if (
+              (left === "(" && right === ")" && symbol.output !== "}") ||
+          (left === "[" && right === "]")
+            ) {
               var pos = []; // positions of commas
               var matrix = true;
               var m = newFrag.childNodes.length;
@@ -1886,8 +1936,14 @@ Each terminal symbol is translated into a corresponding mathml node.
                 pos[i] = [];
                 node = newFrag.childNodes[i];
                 if (matrix) {
-                  matrix =
-                    node.nodeName === "mrow" && (i === m - 1 || (node.nextSibling.nodeName === "mo" && node.nextSibling.firstChild.nodeValue === ",")) && node.firstChild.firstChild.nodeValue === left && node.lastChild.firstChild.nodeValue === right;
+                  matrix = node.nodeName === "mrow" &&
+                (i === m - 1 ||
+                  (node.nextSibling.nodeName === "mo" &&
+                    node.nextSibling.firstChild.nodeValue === ",")
+                ) &&
+                node.firstChild.firstChild.nodeValue === left &&
+                node.lastChild.firstChild.nodeValue === right
+                  ;
                 }
                 if (matrix) {
                   for (var j = 0; j < node.childNodes.length; j++) {
@@ -1918,7 +1974,11 @@ Each terminal symbol is translated into a corresponding mathml node.
                   for (j = 1; j < n - 1; j++) {
                     if (typeof pos[i][k] !== "undefined" && j === pos[i][k]) {
                       node.removeChild(node.firstChild); //remove ,
-                      if (node.firstChild.nodeName === "mrow" && node.firstChild.childNodes.length === 1 && node.firstChild.firstChild.firstChild.nodeValue === "\u2223") {
+                      if (
+                        node.firstChild.nodeName === "mrow" &&
+                    node.firstChild.childNodes.length === 1 &&
+                    node.firstChild.firstChild.firstChild.nodeValue === "\u2223"
+                      ) {
                         // is columnline marker - skip it
                         if (i === 0) {
                           columnlines.push("solid");
@@ -2125,7 +2185,7 @@ function processNodeR(n, linebreaks) {
         // this is a problem ************
         for (i = 0; i < arr.length; i++) {
           if (config.AMusedelimiter2) {
-            arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2)
+            arr[i] = arr[i].replace(/AMescape2/g, config.AMdelimiter2);
           }
           arr[i] = arr[i].replace(/AMescape1/g, config.AMdelimiter1);
         }
@@ -2241,12 +2301,15 @@ if (typeof window.addEventListener !== "undefined") {
   // ================ END ASCIIMATH ===================
   /////////////////////////////////////////////////////
 
+
+
+
   /******************************************************************
-   *
-   *   The previous section is ASCIIMathML.js Version 2.2
-   *   (c) Peter Jipsen, used with permission.
-   *
-   ******************************************************************/
+ *
+ *   The previous section is ASCIIMathML.js Version 2.2
+ *   (c) Peter Jipsen, used with permission.
+ *
+ ******************************************************************/
 
   //
   //  Access to AsciiMath functions and values
@@ -2254,12 +2317,29 @@ if (typeof window.addEventListener !== "undefined") {
   ASCIIMATH.Augment({
     AM: {
       Init: function () {
-        // Old versions use the "decimal" option, which is reported as "unused" from now on.
-        // We no longer support this obsolete option. See issue 384.
+      // Old versions use the "decimal" option, which is reported as "unused" from now on.
+      // We no longer support this obsolete option. See issue 384.
 
         var am = {
           config: {
-            preInit: function MathJaxPreInitASCIImathData(data) {
+            preInitConfig: function MathJaxPreInitASCIImathConfig(data) {
+            // set up default config settings for baseline MathJax:
+              var dst = am.config;
+              dst.showasciiformulaonhover = false;
+              dst.mathfontfamily = "";
+              dst.mathcolor = "";
+              dst.mathfontsize = "";
+            
+              // copy user-specified MathJax/ASCIIMATH options to setup object:
+              var incfg = ASCIIMATH.config;
+              var refcfg = data.defaultConfig;
+              for (var key in incfg) {
+              //if (key in refcfg) {
+                dst[key] = incfg[key];
+              //}
+              }
+            },
+            preInitSymbols: function MathJaxPreInitASCIImathData(data) {
               var AMsymbols = data.AMsymbols;
               //
               //  Remove remapping of mathvariants to plane1 (MathJax handles that)
@@ -2273,24 +2353,8 @@ if (typeof window.addEventListener !== "undefined") {
                   AMsymbols[i].tag = "mi";
                 }
               }
-
-              // set up default config settings for baseline MathJax:
-              var dst = am.config;
-              dst.showasciiformulaonhover = false;
-              dst.mathfontfamily = "";
-              dst.mathcolor = "";
-              dst.mathfontsize = "";
-
-              // copy user-specified MathJax/ASCIIMATH options to setup object:
-              var incfg = ASCIIMATH.config;
-              var refcfg = data.defaultConfig;
-              for (var key in incfg) {
-                //if (key in refcfg) {
-                dst[key] = incfg[key];
-                //}
-              }
             },
-          },
+          }
         };
 
         INITASCIIMATH();
@@ -2300,13 +2364,13 @@ if (typeof window.addEventListener !== "undefined") {
       },
       Augment: function (def) {
         for (var id in def) {
-          if (def.hasOwnProperty(id)) {
+          if (Object.prototype.hasOwnProperty.call(def, id)) {
             throw new Error("MathJax-AM: cannot override this config member function/attribute: " + id);
-            // this[id] = def[id];
+          // this[id] = def[id];
           }
         }
       },
-      parseMath: null, // will be set up in the `.Init()` method above.
+      parseMath: null,  // will be set up in the `.Init()` method above.
 
       createDocumentFragment: DOCFRAG,
       document: document,
@@ -2317,7 +2381,7 @@ if (typeof window.addEventListener !== "undefined") {
       //symbols: AMsymbols,
       //names: AMnames,
 
-      /*
+    /*
     TOKEN: {
       CONST: CONST,
       UNARY: UNARY,
