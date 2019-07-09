@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <script type="text/javascript" src="../ASCIIMathML.js"></script>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript">
+var asciimath = {
+  config: {
+    AMTcgiloc: 'http://www.imathas.com/cgi-bin/mimetex.cgi'
+  }
+};
+  </script>
+  <!-- First come, first serve: LaTeXMathML thus gets first stab at the page contents... -->
   <script type="text/javascript" src="../LaTeXMathML.js"></script>
+  <script type="text/javascript" src="../ASCIIMathML.js"></script>
   <title> LaTeXMathML: a dynamic LaTeX mathematics to MathML converter </title>
 <style>
 body    { 
@@ -516,7 +524,7 @@ nearest available alternative) </td> </tr>
 <td> \models </td>
 </tr>
 <tr>
-<td align=center> $\mid </td>
+<td align=center> $\mid$ </td>
 <td> \mid </td>
 <td align=center> $\parallel$ </td>
 <td> \parallel </td>
@@ -524,7 +532,7 @@ nearest available alternative) </td> </tr>
 <td> \perp </td>
 </tr>
 <tr>
-<td align=center> $\smile </td>
+<td align=center> $\smile$ </td>
 <td> \smile </td>
 <td align=center> $\frown$ </td>
 <td> \frown </td>
