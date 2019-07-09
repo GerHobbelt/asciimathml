@@ -1130,11 +1130,11 @@ var AMbbb = [
         var outsym;
         var symcnt = 1;
         insym = AMsymbols[mk].input;
-        nextsym = str.substr(symcnt * AMsymbols[mk].input.length, AMsymbols[mk].input.length);
-        while (nextsym === AMsymbols[mk].input) {
+        nextsym = str.substr(symcnt * insym.length, insym.length);
+        while (nextsym === insym) {
           symcnt++;
           insym += nextsym;
-          nextsym = str.substr(symcnt * AMsymbols[mk].input.length, AMsymbols[mk].input.length);
+          nextsym = str.substr(symcnt * insym.length, insym.length);
         }
         if (symcnt <= AMsymbols[mk].output.length) {
           outsym = AMsymbols[mk].output[symcnt - 1];
