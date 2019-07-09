@@ -63,19 +63,10 @@ var noMathRender = false;
   var MATRIX = 14;
   var UNARYUNDEROVER = 15; // token types
 
-  var AMsqrt = { input: "sqrt", tag: "msqrt", output: "sqrt", tex: null, ttype: UNARY };
-  var AMroot = { input: "root", tag: "mroot", output: "root", tex: null, ttype: BINARY };
-  var AMfrac = { input: "frac", tag: "mfrac", output: "/", tex: null, ttype: BINARY };
-  var AMdiv = { input: "/", tag: "mfrac", output: "/", tex: null, ttype: INFIX };
-  var AMover = { input: "stackrel", tag: "mover", output: "stackrel", tex: null, ttype: BINARY };
-  var AMsub = { input: "_", tag: "msub", output: "_", tex: null, ttype: INFIX };
-  var AMsup = { input: "^", tag: "msup", output: "^", tex: null, ttype: INFIX };
-  var AMtext = { input: "text", tag: "mtext", output: "text", tex: null, ttype: TEXT };
-  var AMmbox = { input: "mbox", tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
   var AMquote = { input: '"', tag: "mtext", output: "mbox", tex: null, ttype: TEXT };
 
   var AMsymbols = [
-  //some greek symbols
+    //some greek symbols
     { input: "alpha", tag: "mi", output: "\u03B1", tex: null, ttype: CONST },
     { input: "beta", tag: "mi", output: "\u03B2", tex: null, ttype: CONST },
     { input: "chi", tag: "mi", output: "\u03C7", tex: null, ttype: CONST },
@@ -116,6 +107,7 @@ var noMathRender = false;
     { input: "zeta", tag: "mi", output: "\u03B6", tex: null, ttype: CONST },
 
     //binary operation symbols
+    //{input:"-",  tag:"mo", output:"\u0096", tex:null, ttype:CONST},
     { input: "*", tag: "mo", output: "\u22C5", tex: "cdot", ttype: CONST },
     { input: "**", tag: "mo", output: "\u2217", tex: "ast", ttype: CONST },
     { input: "***", tag: "mo", output: "\u22C6", tex: "star", ttype: CONST },
@@ -142,18 +134,16 @@ var noMathRender = false;
     { input: "nnn", tag: "mo", output: "\u22C2", tex: "bigcap", ttype: UNDEROVER },
     { input: "uu", tag: "mo", output: "\u222A", tex: "cup", ttype: CONST },
     { input: "uuu", tag: "mo", output: "\u22C3", tex: "bigcup", ttype: UNDEROVER },
-    { input: "overset", tag: "mover", output: "stackrel", tex: null, ttype: BINARY },
-    { input: "underset", tag: "munder", output: "stackrel", tex: null, ttype: BINARY },
 
     //binary relation symbols
     { input: "!=", tag: "mo", output: "\u2260", tex: "ne", ttype: CONST },
     { input: ":=", tag: "mo", output: ":=", tex: null, ttype: CONST },
     { input: "lt", tag: "mo", output: "<", tex: null, ttype: CONST },
-    { input: "gt", tag: "mo", output: ">", tex: null, ttype: CONST },
     { input: "<=", tag: "mo", output: "\u2264", tex: "le", ttype: CONST },
     { input: "lt=", tag: "mo", output: "\u2264", tex: "leq", ttype: CONST },
-    { input: "gt=", tag: "mo", output: "\u2265", tex: "geq", ttype: CONST },
+    { input: "gt", tag: "mo", output: ">", tex: null, ttype: CONST },
     { input: ">=", tag: "mo", output: "\u2265", tex: "ge", ttype: CONST },
+    { input: "gt=", tag: "mo", output: "\u2265", tex: "geq", ttype: CONST },
     { input: "-<", tag: "mo", output: "\u227A", tex: "prec", ttype: CONST },
     { input: "-lt", tag: "mo", output: "\u227A", tex: null, ttype: CONST },
     { input: ">-", tag: "mo", output: "\u227B", tex: "succ", ttype: CONST },
@@ -199,9 +189,9 @@ var noMathRender = false;
     { input: "{", tag: "mo", output: "{", tex: "lbrace", ttype: LEFTBRACKET },
     { input: "}", tag: "mo", output: "}", tex: "rbrace", ttype: RIGHTBRACKET },
     { input: "|", tag: "mo", output: "|", tex: null, ttype: LEFTRIGHT, val: true },
+    { input: ":|:", tag: "mo", output: "|", tex: "|", ttype: CONST, notexcopy: true, val: true },
     { input: "|:", tag: "mo", output: "|", tex: "|", ttype: LEFTBRACKET, notexcopy: true, val: true },
     { input: ":|", tag: "mo", output: "|", tex: "|", ttype: RIGHTBRACKET, notexcopy: true, val: true },
-    { input: ":|:", tag: "mo", output: "|", tex: "|", ttype: CONST, notexcopy: true, val: true },
     //{input:"||", tag:"mo", output:"||", tex:null, ttype:LEFTRIGHT},
     { input: "(:", tag: "mo", output: "\u2329", tex: "langle", ttype: LEFTBRACKET },
     { input: ":)", tag: "mo", output: "\u232A", tex: "rangle", ttype: RIGHTBRACKET },
@@ -228,6 +218,7 @@ var noMathRender = false;
     { input: ":'", tag: "mo", output: "\u2235", tex: "because", ttype: CONST },
     { input: "/_", tag: "mo", output: "\u2220", tex: "angle", ttype: CONST },
     { input: "/_\\", tag: "mo", output: "\u25B3", tex: "triangle", ttype: CONST },
+    { input: "tilde", tag: "mover", output: "~", tex: null, ttype: UNARY, acc: true },
     { input: "\\ ", tag: "mo", output: "\u00A0", tex: null, ttype: CONST, val: true },
     { input: "frown", tag: "mo", output: "\u2322", tex: null, ttype: CONST },
     { input: "%", tag: "mo", output: "%", tex: "%", ttype: CONST, notexcopy: true },
@@ -261,24 +252,34 @@ var noMathRender = false;
     { input: "sin", tag: "mo", output: "sin", tex: null, ttype: UNARY, func: true },
     { input: "cos", tag: "mo", output: "cos", tex: null, ttype: UNARY, func: true },
     { input: "tan", tag: "mo", output: "tan", tex: null, ttype: UNARY, func: true },
-    { input: "arcsin", tag: "mo", output: "arcsin", tex: null, ttype: UNARY, func: true },
-    { input: "arccos", tag: "mo", output: "arccos", tex: null, ttype: UNARY, func: true },
-    { input: "arctan", tag: "mo", output: "arctan", tex: null, ttype: UNARY, func: true },
     { input: "sinh", tag: "mo", output: "sinh", tex: null, ttype: UNARY, func: true },
     { input: "cosh", tag: "mo", output: "cosh", tex: null, ttype: UNARY, func: true },
     { input: "tanh", tag: "mo", output: "tanh", tex: null, ttype: UNARY, func: true },
     { input: "cot", tag: "mo", output: "cot", tex: null, ttype: UNARY, func: true },
+    { input: "sec", tag: "mo", output: "sec", tex: null, ttype: UNARY, func: true },
+    { input: "csc", tag: "mo", output: "csc", tex: null, ttype: UNARY, func: true },
+    { input: "arcsin", tag: "mo", output: "arcsin", tex: null, ttype: UNARY, func: true },
+    { input: "arccos", tag: "mo", output: "arccos", tex: null, ttype: UNARY, func: true },
+    { input: "arctan", tag: "mo", output: "arctan", tex: null, ttype: UNARY, func: true },
     { input: "coth", tag: "mo", output: "coth", tex: null, ttype: UNARY, func: true },
     { input: "sech", tag: "mo", output: "sech", tex: null, ttype: UNARY, func: true },
     { input: "csch", tag: "mo", output: "csch", tex: null, ttype: UNARY, func: true },
-    { input: "sec", tag: "mo", output: "sec", tex: null, ttype: UNARY, func: true },
-    { input: "csc", tag: "mo", output: "csc", tex: null, ttype: UNARY, func: true },
-    { input: "log", tag: "mo", output: "log", tex: null, ttype: UNARY, func: true },
-    { input: "ln", tag: "mo", output: "ln", tex: null, ttype: UNARY, func: true },
+    { input: "exp", tag: "mo", output: "exp", tex: null, ttype: UNARY, func: true },
     { input: "abs", tag: "mo", output: "abs", tex: null, ttype: UNARY, notexcopy: true, rewriteleftright: ["|", "|"] },
     { input: "norm", tag: "mo", output: "norm", tex: null, ttype: UNARY, notexcopy: true, rewriteleftright: ["\\|", "\\|"] },
     { input: "floor", tag: "mo", output: "floor", tex: null, ttype: UNARY, notexcopy: true, rewriteleftright: ["\\lfloor", "\\rfloor"] },
     { input: "ceil", tag: "mo", output: "ceil", tex: null, ttype: UNARY, notexcopy: true, rewriteleftright: ["\\lceil", "\\rceil"] },
+    { input: "log", tag: "mo", output: "log", tex: null, ttype: UNARY, func: true },
+    { input: "ln", tag: "mo", output: "ln", tex: null, ttype: UNARY, func: true },
+    { input: "det", tag: "mo", output: "det", tex: null, ttype: UNARY, func: true },
+    { input: "dim", tag: "mo", output: "dim", tex: null, ttype: CONST },
+    { input: "mod", tag: "mo", output: "mod", tex: "text{mod}", ttype: CONST, notexcopy: true },
+    { input: "gcd", tag: "mo", output: "gcd", tex: null, ttype: UNARY, func: true },
+    { input: "lcm", tag: "mo", output: "lcm", tex: "text{lcm}", ttype: UNARY, func: true, notexcopy: true },
+    { input: "lub", tag: "mo", output: "lub", tex: null, ttype: CONST },
+    { input: "glb", tag: "mo", output: "glb", tex: null, ttype: CONST },
+    { input: "min", tag: "mo", output: "min", tex: null, ttype: UNDEROVER },
+    { input: "max", tag: "mo", output: "max", tex: null, ttype: UNDEROVER },
     { input: "Sin", tag: "mo", output: "Sin", tex: null, ttype: UNARY, func: true },
     { input: "Cos", tag: "mo", output: "Cos", tex: null, ttype: UNARY, func: true },
     { input: "Tan", tag: "mo", output: "Tan", tex: null, ttype: UNARY, func: true },
@@ -294,17 +295,6 @@ var noMathRender = false;
     { input: "Log", tag: "mo", output: "Log", tex: null, ttype: UNARY, func: true },
     { input: "Ln", tag: "mo", output: "Ln", tex: null, ttype: UNARY, func: true },
     { input: "Abs", tag: "mo", output: "abs", tex: null, ttype: UNARY, notexcopy: true, rewriteleftright: ["|", "|"] },
-
-    { input: "det", tag: "mo", output: "det", tex: null, ttype: UNARY, func: true },
-    { input: "exp", tag: "mo", output: "exp", tex: null, ttype: UNARY, func: true },
-    { input: "dim", tag: "mo", output: "dim", tex: null, ttype: CONST },
-    { input: "mod", tag: "mo", output: "mod", tex: "text{mod}", ttype: CONST, notexcopy: true },
-    { input: "gcd", tag: "mo", output: "gcd", tex: null, ttype: UNARY, func: true },
-    { input: "lcm", tag: "mo", output: "lcm", tex: "text{lcm}", ttype: UNARY, func: true, notexcopy: true },
-    { input: "lub", tag: "mo", output: "lub", tex: null, ttype: CONST },
-    { input: "glb", tag: "mo", output: "glb", tex: null, ttype: CONST },
-    { input: "min", tag: "mo", output: "min", tex: null, ttype: UNDEROVER },
-    { input: "max", tag: "mo", output: "max", tex: null, ttype: UNDEROVER },
 
     //arrows
     { input: "uarr", tag: "mo", output: "\u2191", tex: "uparrow", ttype: CONST },
@@ -322,19 +312,19 @@ var noMathRender = false;
     { input: "hArr", tag: "mo", output: "\u21D4", tex: "Leftrightarrow", ttype: CONST },
 
     //commands with argument
-    AMsqrt,
-    AMroot,
-    AMfrac,
-    AMdiv,
-    AMover,
-    AMsub,
-    AMsup,
-    { input: "cancel", tag: "menclose", output: "cancel", tex: null, ttype: UNARY },
+    { input: "sqrt", tag: "msqrt", output: "sqrt", tex: null, ttype: UNARY },
+    { input: "root", tag: "mroot", output: "root", tex: null, ttype: BINARY },
+    { input: "frac", tag: "mfrac", output: "/", tex: null, ttype: BINARY },
+    { input: "/", tag: "mfrac", output: "/", tex: null, ttype: INFIX },
+    { input: "stackrel", tag: "mover", output: "stackrel", tex: null, ttype: BINARY },
+    { input: "overset", tag: "mover", output: "stackrel", tex: null, ttype: BINARY },
+    { input: "underset", tag: "munder", output: "stackrel", tex: null, ttype: BINARY },
+    { input: "_", tag: "msub", output: "_", tex: null, ttype: INFIX },
+    { input: "^", tag: "msup", output: "^", tex: null, ttype: INFIX },
     { input: "Sqrt", tag: "msqrt", output: "sqrt", tex: null, ttype: UNARY },
     { input: "hat", tag: "mover", output: "\u005E", tex: null, ttype: UNARY, acc: true },
     { input: "bar", tag: "mover", output: "\u00AF", tex: "overline", ttype: UNARY, acc: true },
     { input: "vec", tag: "mover", output: "\u2192", tex: null, ttype: UNARY, acc: true },
-    { input: "tilde", tag: "mover", output: "~", tex: null, ttype: UNARY, acc: true },
     { input: "dot", tag: "mover", output: ".", tex: null, ttype: UNARY, acc: true },
     { input: "ddot", tag: "mover", output: "..", tex: null, ttype: UNARY, acc: true },
     { input: "overarc", tag: "mover", output: "\u23DC", tex: "stackrel{\\frown}", notexcopy: true, ttype: UNARY, acc: true },
@@ -342,11 +332,12 @@ var noMathRender = false;
     { input: "ul", tag: "munder", output: "\u0332", tex: "underline", ttype: UNARY, acc: true },
     { input: "ubrace", tag: "munder", output: "\u23DF", tex: "underbrace", ttype: UNARY, acc: true },
     { input: "obrace", tag: "mover", output: "\u23DE", tex: "overbrace", ttype: UNARY, acc: true },
-    AMtext,
-    AMmbox,
-    AMquote,
+    { input: "text", tag: "mtext", output: "text", tex: null, ttype: TEXT },
+    { input: "mbox", tag: "mtext", output: "mbox", tex: null, ttype: TEXT },
     //{input:"var", tag:"mstyle", atname:"fontstyle", atval:"italic", output:"var", tex:null, ttype:UNARY},
     { input: "color", tag: "mstyle", ttype: BINARY },
+    { input: "cancel", tag: "menclose", output: "cancel", tex: null, ttype: UNARY },
+    AMquote,
     { input: "bb", tag: "mstyle", atname: "mathvariant", atval: "bold", output: "bb", tex: "mathbf", ttype: UNARY, notexcopy: true },
     { input: "mathbf", tag: "mstyle", atname: "mathvariant", atval: "bold", output: "mathbf", tex: null, ttype: UNARY },
     { input: "sf", tag: "mstyle", atname: "mathvariant", atval: "sans-serif", output: "sf", tex: "mathsf", ttype: UNARY, notexcopy: true },
