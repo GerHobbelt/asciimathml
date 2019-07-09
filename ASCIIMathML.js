@@ -1534,7 +1534,6 @@ var AMbbb = [
     var result;
     var underover;
     var dofunc = false;
-    var origStr = str;
     str = AMremoveCharsAndBlanks(str, 0);
     sym1 = AMgetSymbol(str);
     result = AMparseSexpr(str);

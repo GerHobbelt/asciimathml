@@ -1787,7 +1787,7 @@ var AMbbb = [
     }
   }
 
-  function AMparseIexpr(str) {
+  function AMparseIexpr(str, silentOutputOnEmpty) {
     // parses str and returns [nodestr,tailstr]
     var symbol;
     var sym1;
@@ -1801,14 +1801,16 @@ var AMbbb = [
     result = AMparseSexpr(str);
     if (result[0] == null) {
       // show box in place of missing argument
-      result[0] = createMmlNode("mo", document.createTextNode("\u25A1"));
+      if (!silentOutputOnEmpty) {
+        result[0] = createMmlNode("mo", document.createTextNode("\u25A1"));
+      }
     }
     node = result[0];
     str = result[1];
     symbol = AMgetSymbol(str);
     if (symbol.ttype === INFIX && symbol.input !== "/") {
       str = AMremoveCharsAndBlanks(str, symbol.input.length);
-      // if (symbol.input === "/") result = AMparseIexpr(str); else ...
+      // if (symbol.input === "/") result = AMparseIexpr(str, false); else ...
       result = AMparseSexpr(str);
       if (result[0] == null) {
         // show box in place of missing argument
@@ -1871,7 +1873,7 @@ var AMbbb = [
         sym2.input !== "-" && 
         (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
       ) {
-        result = AMparseIexpr(str);
+        result = AMparseIexpr(str, false);
         node = createMmlNode("mrow", node);
         node.appendChild(result[0]);
         str = result[1];
@@ -1891,13 +1893,13 @@ var AMbbb = [
     var newFrag = document.createDocumentFragment();
     do {
       str = AMremoveCharsAndBlanks(str, 0);
-      result = AMparseIexpr(str);
+      result = AMparseIexpr(str, rightbracket);
       node = result[0];
       str = result[1];
       symbol = AMgetSymbol(str);
       if (symbol.ttype === INFIX && symbol.input === "/") {
         str = AMremoveCharsAndBlanks(str, symbol.input.length);
-        result = AMparseIexpr(str);
+        result = AMparseIexpr(str, false);
         result[0] = AMremoveBrackets(result[0]);
         str = result[1];
         // for sake of backwards compatibility, treat -I/I as a special case
@@ -1917,12 +1919,7 @@ var AMbbb = [
           newFrag.appendChild(node);
         }
         symbol = AMgetSymbol(str);
-      } else if (typeof node !== "undefined") {
-        // this stricter conditional helped us find bugs in the parse routines
-        // as it caused MJ to output literal "null" in rare circumstances.
-        // That bug has been fixed but we keep this strict check, rather than
-        // unifying it to the `node != null` check used everywhere else in the
-        // code, so that we can catch regressions earlier and easier.
+      } else if (node != null) {
         newFrag.appendChild(node);
       }
 

@@ -23,6 +23,11 @@ Just add the next lines to your HTML page with this file in the same folder:
     </script>
     <script type="text/javascript" src="ASCIIMathTeXImg.js"></script>
 
+Note: the configuration setup chunk is optional; if none is present at 
+load time, the ASCIImath default settings will be used.
+
+ 
+Version 2.2 Mar 3, 2014.
 Latest version at https://github.com/mathjax/asciimathml
 If you use it on a webpage, please send the URL to jipsen@chapman.edu
 
@@ -1436,7 +1441,7 @@ var AMbbb = [
     }
   }
 
-  function AMparseIexpr(str) {
+  function AMparseIexpr(str, silentOutputOnEmpty) {
     // parses str and returns [nodestr,tailstr]
     var symbol;
     var sym1;
@@ -1449,18 +1454,22 @@ var AMbbb = [
     result = AMparseSexpr(str);
     if (result[0] == null) {
       // show box in place of missing argument
-      result[0] = "{}";
+      if (silentOutputOnEmpty) {
+        result[0] = "{}";
+      } else {
+        result[0] = "{\u25A1}";
+      }
     }
     node = result[0];
     str = result[1];
     symbol = AMgetSymbol(str);
     if (symbol.ttype === INFIX && symbol.input !== "/") {
       str = AMremoveCharsAndBlanks(str, symbol.input.length);
-      // if (symbol.input === "/") result = AMparseIexpr(str); else ...
+      // if (symbol.input === "/") result = AMparseIexpr(str, false); else ...
       result = AMparseSexpr(str);
       if (result[0] == null) {
         // show box in place of missing argument
-        result[0] = "{}";
+        result[0] = "{\u25A1}";
       } else {
         result[0] = AMremoveBrackets(result[0]);
       }
@@ -1475,7 +1484,7 @@ var AMbbb = [
           var res2 = AMparseSexpr(str);
           if (res2[0] == null) {
             // show box in place of missing argument
-            res2[0] = "{}";
+            res2[0] = "{\u25A1}";
           }
           res2[0] = AMremoveBrackets(res2[0]);
           str = res2[1];
@@ -1487,8 +1496,8 @@ var AMbbb = [
           node += "_{" + result[0] + "}";
         }
       } else {
-      //must be ^
-      //node = '{'+node+'}^{'+result[0]+'}';
+        // must be ^
+        //node = '{'+node+'}^{'+result[0]+'}';
         node = node + "^{" + result[0] + "}";
       }
       sym2 = AMgetSymbol(str);
@@ -1500,7 +1509,7 @@ var AMbbb = [
       result = AMparseSexpr(str);
       if (result[0] == null) {
         // show box in place of missing argument
-        result[0] = "{}";
+        result[0] = "{\u25A1}";
       }
       str = result[1];
       // symbol.tietoprev === "msup" ==>
@@ -1516,7 +1525,7 @@ var AMbbb = [
         sym2.input !== "-" && 
         (sym1.input.length > 1 || sym2.ttype === LEFTBRACKET)
       ) {
-        result = AMparseIexpr(str);
+        result = AMparseIexpr(str, false);
         node = "{" + node + result[0] + "}";
         str = result[1];
       }
@@ -1535,13 +1544,13 @@ var AMbbb = [
     var addedright = false;
     do {
       str = AMremoveCharsAndBlanks(str, 0);
-      result = AMparseIexpr(str);
+      result = AMparseIexpr(str, rightbracket);
       node = result[0];
       str = result[1];
       symbol = AMgetSymbol(str);
       if (symbol.ttype === INFIX && symbol.input === "/") {
         str = AMremoveCharsAndBlanks(str, symbol.input.length);
-        result = AMparseIexpr(str);
+        result = AMparseIexpr(str, false);
         result[0] = AMremoveBrackets(result[0]);
         str = result[1];
         node = AMremoveBrackets(node);
@@ -1549,12 +1558,7 @@ var AMbbb = [
         node += "{" + result[0] + "}";
         newFrag += node;
         symbol = AMgetSymbol(str);
-      } else if (typeof node !== "undefined") {
-        // this stricter conditional helped us find bugs in the parse routines
-        // as it caused MJ to output literal "null" in rare circumstances.
-        // That bug has been fixed but we keep this strict check, rather than
-        // unifying it to the `node != null` check used everywhere else in the
-        // code, so that we can catch regressions earlier and easier.
+      } else if (node != null) {
         newFrag += node;
       }
     } while (((
