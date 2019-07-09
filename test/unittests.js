@@ -671,7 +671,7 @@ var unittests = [
     output:
       "<msup><mi>p</mi><mo>′</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>+</mo><msup><mi>p</mi><mo>″</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>+</mo><msup><mi>p</mi><mo>‴</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>+</mo><msup><mi>p</mi><mo>⁗</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>+</mo><msup><mi>p</mi><mo>′′′′′</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mo>+</mo><mrow><msup><mi>f</mi><mo>‴</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>",
   },
-  { input: "g''", output: "<mrow><msup><mi>g</mi><mo>″</mo></msup><mo></mo></mrow>" },
+  { input: "g''", output: "<msup><mi>g</mi><mo>″</mo></msup>" },
   {
     input: "fprimeprime(x)",
     output: "<mrow><msup><mi>f</mi><mo>″</mo></msup><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>",
